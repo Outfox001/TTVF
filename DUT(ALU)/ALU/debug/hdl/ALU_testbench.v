@@ -25,7 +25,7 @@ initial begin
 end
 
 initial begin
-pwdata <= 32'b10011000010000011100000011010110;
+pwdata <= 32'b10011000010000011100000011000110;
 @(posedge clk);
   psel <= 1'b1;  
   @(posedge clk);
@@ -33,9 +33,15 @@ pwdata <= 32'b10011000010000011100000011010110;
   @(posedge clk);
    pwrite <= 1'b1;
   @(posedge clk);
-	paddr <= 0;  
+	paddr <= 32'd6;  
   @(posedge clk);
-  
+  @(posedge clk);
+  @(posedge clk);
+  @(posedge clk);
+  @(posedge clk);
+  @(posedge clk);
+  @(posedge clk);
+  pwrite <= 1'b0;
 end
 
 

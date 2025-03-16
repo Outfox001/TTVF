@@ -45,28 +45,46 @@ module ALU_control (
 	
 	//Comunicatie APB
     always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) begin
-            pready <= 1'b0;
-            pslverr <= 1'b0; 
-			init <= 1'b0;
-			received_data <= 0;
-        end else begin
-            if (psel && penable && !init) begin
-                if (pwrite) begin
-                    received_data <= pwdata;
-                    pready <= 1'b1;
-					init <= 1'b1;
-                end else begin
-                    
-                    prdata <= received_data;
-                    pready <= 1'b1;
-					init <= 1'b0;
-                end
+    if (!reset_n) begin
+        pready <= 1'b0;
+        pslverr <= 1'b0; 
+        init <= 1'b0;
+        received_data <= 0;
+    end else begin
+        if (psel && penable && !init) begin
+            if (pwrite) begin
+                received_data <= pwdata;
+                pready <= 1'b1;
+                init <= 1'b1;
             end else begin
-                pready <= 1'b0;
-            end
+                case (paddr)
+                    32'd0  : prdata <= ResultReg_0;
+                    32'd1  : prdata <= ResultReg_1;
+                    32'd2  : prdata <= ResultReg_2;
+                    32'd3  : prdata <= ResultReg_3;
+                    32'd4  : prdata <= ResultReg_4;
+                    32'd5  : prdata <= ResultReg_5;
+                    32'd6  : prdata <= ResultReg_6;
+                    32'd7  : prdata <= ResultReg_7;
+                    32'd8  : prdata <= ResultReg_8;
+                    32'd9  : prdata <= ResultReg_9;
+                    32'd10 : prdata <= ResultReg_10;
+                    32'd11 : prdata <= ResultReg_11;
+                    32'd12 : prdata <= ResultReg_12;
+                    32'd13 : prdata <= ResultReg_13;
+                    32'd14 : prdata <= ResultReg_14;
+                    32'd15 : prdata <= ResultReg_15;
+                    32'd16 : prdata <= received_data;  
+                endcase
+
+                pready <= 1'b1;
+                init <= 1'b0;
+            end 
+        end else begin
+            pready <= 1'b0;
         end
     end
+end
 	
 	 // Definirea starilor
     localparam INIT  = 5'b00000;

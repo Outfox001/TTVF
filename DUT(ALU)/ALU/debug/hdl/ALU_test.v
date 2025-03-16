@@ -9,6 +9,8 @@ wire pready;
 wire  [31:0] paddr;
 wire  [31:0] pwdata;
 wire  [8:0]  result;
+wire  [31:0] prdata;
+wire         pslverr;
 
 //DUT
 
@@ -22,8 +24,9 @@ ALU_control instALU_control(
 .pwrite(pwrite),
 .pwdata(pwdata),
 .pready(pready),
-.result(result)
-
+.result(result),
+.prdata(prdata),
+.pslverr(pslverr)
 
 
 );
