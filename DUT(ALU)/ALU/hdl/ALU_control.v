@@ -22,6 +22,26 @@ module ALU_control (
 	reg [7:0] op2;
 	reg [4:0] constanta;
 	
+	reg [5:0] result_address;
+	
+	reg [8:0] ResultReg_0 ;
+	reg [8:0] ResultReg_1 ;
+	reg [8:0] ResultReg_2 ;
+	reg [8:0] ResultReg_3 ;
+	reg [8:0] ResultReg_4 ;
+	reg [8:0] ResultReg_5 ;
+	reg [8:0] ResultReg_6 ;
+	reg [8:0] ResultReg_7 ;
+	reg [8:0] ResultReg_8 ;
+	reg [8:0] ResultReg_9 ;
+	reg [8:0] ResultReg_10 ;
+	reg [8:0] ResultReg_11 ;
+	reg [8:0] ResultReg_12 ;
+	reg [8:0] ResultReg_13 ;
+	reg [8:0] ResultReg_14 ;
+	reg [8:0] ResultReg_15 ;
+	
+	
 	
 	//Comunicatie APB
     always @(posedge clk or negedge reset_n) begin
@@ -253,15 +273,15 @@ always @(posedge clk or negedge reset_n) begin
 			end
     end
 //SHIFT_OP1
-/* always @(posedge clk or negedge reset_n) begin
+ always @(posedge clk or negedge reset_n) begin
         if (!reset_n)
             result <= 9'b000000000;
 			
         else if (shift_op1) begin
-			result <=  ;
+			result <= op1 << received_data[27:26] ;
 			endop  <= 1 ;
 			end
-    end */
+    end 
 
 //AND
 always @(posedge clk or negedge reset_n) begin
@@ -285,11 +305,101 @@ always @(posedge clk or negedge reset_n) begin
 			endop  <= 1 ;
 			end
     end
+//NOR
+	always @(posedge clk or negedge reset_n) begin
+        if (!reset_n)
+            result <= 9'b000000000;
+			
+			
+        else if (nsau) begin
+			result <= ~ (op1 | op2 );
+			endop  <= 1 ;
+			end
+    end
+	
+//NAND
+always @(posedge clk or negedge reset_n) begin
+        if (!reset_n)
+            result <= 9'b000000000;
+			
+        else if (si) begin
+			result <= ~(op1 & op2) ;
+			endop  <= 1 ;
+			end
+    end
+	
+//COMP
+always @(posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+        result <= 9'b000000000;
+        endop  <= 0;
+    end else if (comp) begin
+        if (op1 > op2) begin
+            result <= 9'b000000001;
+            endop  <= 1;
+        end else if (op1 < op2) begin
+            result <= 9'b000000010;
+            endop  <= 1;
+        end else if (op1 == op2) begin
+            result <= 9'b100000000;
+            endop  <= 1;
+        end
+    end
+end
 
-	
-	
-	
-	
+always @(posedge clk or negedge reset_n) begin
+        if (!reset_n)
+            result_address <= 6'b000000;
+		else
+			result_address <= received_data[5:0];
+		
+    end
+
+
+//ResultRegisters
+
+always @(posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+        ResultReg_0  <= 8'b0;
+        ResultReg_1  <= 8'b0;
+        ResultReg_2  <= 8'b0;
+        ResultReg_3  <= 8'b0;
+        ResultReg_4  <= 8'b0;
+        ResultReg_5  <= 8'b0;
+        ResultReg_6  <= 8'b0;
+        ResultReg_7  <= 8'b0;
+        ResultReg_8  <= 8'b0;
+        ResultReg_9  <= 8'b0;
+        ResultReg_10 <= 8'b0;
+        ResultReg_11 <= 8'b0;
+        ResultReg_12 <= 8'b0;
+        ResultReg_13 <= 8'b0;
+        ResultReg_14 <= 8'b0;
+        ResultReg_15 <= 8'b0; 
+		pslverr <= 0;
+    end else begin
+        case (result_address)
+            6'd0  : ResultReg_0  <= result;
+            6'd1  : ResultReg_1  <= result;
+            6'd2  : ResultReg_2  <= result;
+            6'd3  : ResultReg_3  <= result;
+            6'd4  : ResultReg_4  <= result;
+            6'd5  : ResultReg_5  <= result;
+            6'd6  : ResultReg_6  <= result;
+            6'd7  : ResultReg_7  <= result;
+            6'd8  : ResultReg_8  <= result;
+            6'd9  : ResultReg_9  <= result;
+            6'd10 : ResultReg_10 <= result;
+            6'd11 : ResultReg_11 <= result;
+            6'd12 : ResultReg_12 <= result;
+            6'd13 : ResultReg_13 <= result;
+            6'd14 : ResultReg_14 <= result;
+            6'd15 : ResultReg_15 <= result; 
+			
+            default:  pslverr <= 1; 
+        endcase
+    end
+end
 
 
 endmodule

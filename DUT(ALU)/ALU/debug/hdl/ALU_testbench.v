@@ -25,7 +25,7 @@ initial begin
 end
 
 initial begin
-pwdata <= 32'b01100000010000011100000011000000;
+pwdata <= 32'b10011000010000011100000011010110;
 @(posedge clk);
   psel <= 1'b1;  
   @(posedge clk);
