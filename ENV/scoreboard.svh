@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Module name: afvip_scoreboard
+// Module name: scoreboard
 // HDL        : UVM
 // Author     : Paulovici Vlad-Marian
 // Description: A verification component that contains checkers and verifies the functionality of a design. 
@@ -7,202 +7,186 @@
 //              The scoreboard can compare between the expected and actual values to see if they match.
 // Date       : 28 August, 2023
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class afvip_scoreboard extends uvm_scoreboard;
+class scoreboard extends uvm_scoreboard;
     
-  `uvm_component_utils(afvip_scoreboard)
+  `uvm_component_utils(scoreboard)
   `uvm_analysis_imp_decl(_apb_port)
-  `uvm_analysis_imp_decl(_interrupt_port)
+  `uvm_analysis_imp_decl(_output_port)
   `uvm_analysis_imp_decl(_reset_port)
 
-uvm_analysis_imp_apb_port #(afvip_apb_item ,afvip_scoreboard) ap_imp;
-uvm_analysis_imp_reset_port #(afvip_reset_item, afvip_scoreboard) ap_imp_reset;
-uvm_analysis_imp_interrupt_port #(afvip_intrr_item ,afvip_scoreboard) ap_imp_interrupt;
+uvm_analysis_imp_apb_port #(apb_item ,scoreboard) ap_imp_apb;
+uvm_analysis_imp_reset_port #(reset_item, scoreboard) ap_imp_reset;
+uvm_analysis_imp_output_port #(output_item ,scoreboard) ap_imp_output;
 
 function new(string name, uvm_component parent);
   super.new(name, parent);
 endfunction
 
 function void build_phase(uvm_phase phase);
-  ap_imp = new("ap_imp", this);
+  ap_imp_apb = new("ap_imp_apb", this);
   ap_imp_reset = new("ap_imp_reset", this);
-  ap_imp_interrupt = new("ap_imp_interrupt", this);
+  ap_imp_output = new("ap_imp_output", this);
 endfunction
 
-  bit [31:0] mem [32];
-  bit [2:0] opcode;
-  bit [4:0] RS0;
-  bit [4:0] RS1;
-  bit [4:0] DST;
-  bit [7:0] imm;
-  bit ev_ctrl_start;
-  bit ev_ctrl_error;
-  bit [31:0] opcode_ver;
+  bit [5:0]   pwdata_address    ;   //  Value for addres where to write the value for virtual memory  
+  bit [7:0]   pwdata_operand1   ;   //  Value for operand1
+  bit [7:0]   pwdata_operand2   ;   //  Value for operand2
+  bit [3:0]   pwdata_constant   ;   //  Value for constant
+  bit [1:0]   pwdata_shift      ;   //  Value for shift 00 -> shift with 0, 01 -> shift with 1 bit, 10 -> shift with 2 bits, 11 -> shift with 3 bits
+  bit [3:0]   pwdata_opcode     ;   //  Value for opcode
+                                    //  OPCODE 0001 -> ADD1         -> op1+op2
+                                    //  OPCODE 0010 -> ADD2         -> op1+cont
+                                    //  OPCODE 0011 -> ADD3         -> op2+cont
+                                    //  OPCODE 0100 -> SHIFT_OP1    -> shift op1  
+                                    //  OPCODE 0101 -> AND          -> op1 and op2
+                                    //  OPCODE 0110 -> OR       
+                                    //  OPCODE 0111 -> NAND
+                                    //  OPCODE 1000 -> NOR          
+                                    //  OPCODE 1001 -> COMP         -> op1 > op2 => 1, op1 < op2 => 2, op1 == op2 => 0
+
+  bit [5:0]   addres_read       ;
+  bit [8:0]   Resultmem [15]    ;
+  bit [8:0]   ResultOutput      ;
   bit reset;
 
-virtual function void write_apb_port  (afvip_apb_item item);
 
-//////////////////////////////////////////////////////----STARTING THE SCOREBOARD----////////////////////////////////////////////////////////////////////////////////////////////
-  `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD FOR PADDR = %h", item.paddr), UVM_LOW);
+  virtual function void write_apb_port  (apb_item item);
+
+  //                                  ----------------STARTING THE SCOREBOARD---------
+  uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD "), UVM_LOW);
   $display("At %0t The item is :", $time)    ;
-        
-//////////////////////////////////////////////////////----Verify the address multiple of 4----////////////////////////////////////////////////////////////////////////////////////////////
 
-  if (item.paddr % 4 != 0 ) begin  
-    `uvm_error (get_type_name (), "The Address isnt a multiple of 4") 
-    ev_ctrl_error =1;end else begin
-    $display("%s", item.sprint()); end
-          
-//////////////////////////////////////////////////////----Virtual memory----////////////////////////////////////////////////////////////////////////////////////////////
+  uvm_info (get_type_name(), $sformatf ("PWRITE Check"), UVM_LOW);
+  if(item.pwrite) begin
+    pwdata_address   = item.pwdata[5:0]  ;
+    pwdata_operand1  = item.pwdata[13:6] ;
+    pwdata_operand2  = item.pwdata[21:14];
+    pwdata_constant  = item.pwdata[25:22];
+    pwdata_shift     = item.pwdata[27:26];
+    pwdata_opcode    = item.pwdata[31:28];
+  `uvm_info(get_type_name(), $sformatf ("For Configuration pwrite = %b , pwdata =%b, PWDATA_ADDR = %d, PWDATA_OPERAND1 = %d, PWDATA_OPERAND2 = %d, PWDATA_CONSTANT = %d, PWDATA_SHIFT = %d, PWDATA_OPCODE = %d",item.pwrite,item.pwdata , pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode), UVM_LOW);
 
-  if(item.paddr < 'h80) begin
-    if(item.pwrite == 1) begin
-      mem[(item.paddr/4)] = item.pwdata;
-      `uvm_info (get_type_name (), $sformatf ("RECEIVED PWDATA = %d, RECEIVED ADDR =%h, RECEIVED in mem[%d] =%d",item.pwdata, item.paddr, item.paddr/4, mem[(item.paddr/4)]), UVM_LOW);
-    end else begin
-    if(mem[(item.paddr/4)] != item.prdata)
-      `uvm_error (get_type_name(), $sformatf ("ERROR :EXPECTED  Read data  = %d, RECEIVED rdata = %d",mem[(item.paddr/4)], item.prdata))   else  
-      `uvm_info (get_type_name(), $sformatf ("RECEIVED PRDATA = %d, RECEIVED ADDR =%h",item.prdata, item.paddr), UVM_LOW);                 end
+  end else 
+    addres_read      = item.paddr;
+  `uvm_info(get_type_name(), $sformatf ("For Configuration pwrite = %b , paddr = %d, internal addr =%d", item.pwrite, item.paddr, addres_read), UVM_LOW);
 
-    for (int i=0; i<=item.paddr/4; i++) begin
-      `uvm_info (get_type_name (), $sformatf ("At PADDR = %h, the mem[%d] has %d", i*4, i, mem[(i)]), UVM_LOW);     end
+  uvm_info (get_type_name(), $sformatf ("OPCODE Check"), UVM_LOW);
+
+  if(item.pwrite) begin
+  if(pwdata_opcode == 4'b0001)begin
+    ResultOutput = pwdata_operand1 + pwdata_operand2;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0010)begin
+    ResultOutput = pwdata_operand1 + pwdata_constant;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0011)begin
+    ResultOutput = pwdata_operand2 + pwdata_constant;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0100)begin
+    ResultOutput = pwdata_operand1 << pwdata_shift;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0101)begin
+    ResultOutput = pwdata_operand1 & pwdata_operand2;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0110)begin
+    ResultOutput = pwdata_operand1 | pwdata_operand2;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0111)begin
+    ResultOutput = pwdata_operand1 ^ pwdata_operand2;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+    if(pwdata_opcode == 4'b1000)begin
+    ResultOutput = ~(pwdata_operand1 & pwdata_operand2);
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b1001)begin
+    ResultOutput = ~(pwdata_operand1 | pwdata_operand2);
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b1010)begin
+    ResultOutput = ~(pwdata_operand1 ^ pwdata_operand2);
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b1011 && pwdata_operand1 == pwdata_operand2)begin
+    ResultOutput = 9'd0;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b1011 && pwdata_operand1 < pwdata_operand2)begin
+    ResultOutput = 9'd2;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b1011 && pwdata_operand1 > pwdata_operand2)begin
+    ResultOutput = 9'd1;
+    Resultmem [pwdata_address] = ResultOutput;
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
+  end
+  if(pwdata_opcode == 4'b0000)begin
+  `uvm_error(get_type_name (),$sformatf ("The OPCODE value need to be a non-zero value"))
+  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b", pwdata_opcode), UVM_LOW);
+  end
   end
 
-//////////////////////////////////////////////////////----Virtual Configuration Register----////////////////////////////////////////////////////////////////////////////////////////////
-
-  if(item.paddr == 'h80 && item.pwrite == 1) begin
-    `uvm_info (get_type_name (), $sformatf ("The Address 80 has reach, the configuration of register is %d",item.pwdata), UVM_LOW);
-    opcode  = item.pwdata[2:0]  ;
-    RS0     = item.pwdata[7:3]  ;
-    RS1     = item.pwdata[12:8] ;
-    DST     = item.pwdata[20:16];
-    imm     = item.pwdata[31:24];
-
-    `uvm_info(get_type_name(), $sformatf ("For Configuration register we have OPCODE =%d, RS0 = %d, RS1 =%d, DST = %d, imm = %d", opcode, RS0, RS1, DST, imm), UVM_LOW);
-    `uvm_info(get_type_name(), $sformatf ("With Value RS0 = %d, RS1 =%d, DST = %d",  mem[RS0], mem[RS1], mem[DST]), UVM_LOW);
-    
-    if(item.pwdata[15:13] != 'd0)begin
-      `uvm_error(get_type_name (),$sformatf ("ERROR : The configuration register is wrong! Data of 13, 14 or 15 bits need to be 0"))
-      `uvm_info(get_type_name(), $sformatf ("Expected Value = 000 , Received Value = %b", item.pwdata[15:13]), UVM_LOW);
-      ev_ctrl_error =1;
-    end
-
-    if(item.pwdata[23:21] != 'd0)begin
-      `uvm_error(get_type_name (),$sformatf ("ERROR : The configuration register is wrong! Data of 21, 22 or 23 bits need to be 0"))
-      `uvm_info(get_type_name(), $sformatf ("Expected Value = 000 , Received Value = %b", item.pwdata[23:21]), UVM_LOW);
-      ev_ctrl_error =1;
-    end
-
-    if(item.pwdata[2:0] > 'd4) begin
-      `uvm_error (get_type_name (),$sformatf ("ERROR : The configuration register is wrong! OPCODE is %d", opcode))
-      ev_ctrl_error =1;
-    end
+  if(~(item.pwrite)) begin
+    ResultOutput = Resultmem [addres_read];
+    `uvm_info(get_type_name(), $sformatf ("For PWRITE = %b , Result = %d, Storage at =%d", item.pwrite, ResultOutput, Resultmem[addres_read]), UVM_LOW);
   end
+  endfunction
 
-  if(item.paddr == 'h80 && item.pwrite == 0) begin
-    `uvm_info (get_type_name (), $sformatf ("The Address 80 has reach, the configuration of register is %d",item.prdata), UVM_LOW);
-    opcode  = item.prdata[2:0]  ;
-    RS0     = item.prdata[7:3]  ;
-    RS1     = item.prdata[12:8] ;
-    DST     = item.prdata[20:16];
-    imm     = item.prdata[31:24];
 
-    `uvm_info(get_type_name(), $sformatf ("For Configuration register we have OPCODE =%d, RS0 = %d, RS1 =%d, DST = %d, imm = %d", opcode, RS0, RS1, DST, imm), UVM_LOW);
-    `uvm_info(get_type_name(), $sformatf ("With Value RS0 = %d, RS1 =%d, DST = %d",  mem[RS0], mem[RS1], mem[DST]), UVM_LOW);
-    
-    if(item.prdata[15:13] != 'd0)begin
-      `uvm_error(get_type_name (),$sformatf ("ERROR : The configuration register is wrong! Data of 13, 14 or 15 bits need to be 0"))
-      `uvm_info(get_type_name(), $sformatf ("Expected Value = 000 , Received Value = %b", item.prdata[15:13]), UVM_LOW);
-      ev_ctrl_error =1;
+  virtual function void write_reset_port  (reset_item item_reset);
+    $display("%s", item_reset.sprint());
+    `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD FOR H_RESET = %d", item_reset.hw_rst), UVM_LOW);
+    if(!item_reset.hw_rst)begin
+      for (int i=0; i<16; i++) Resultmem[i]=0;
+      pwdata_address  = 0;
+      pwdata_operand1 = 0;
+      pwdata_operand2 = 0;
+      pwdata_constant = 0;
+      pwdata_shift    = 0;   
+      pwdata_opcode   = 0;  
+      addres_read     = 0;    
+      ResultOutput    = 0;
+       for (int i=0; i<=15; i++) begin
+      `uvm_info (get_type_name (), $sformatf ("At ADDR = %d, the Resultmem[%d] has %d", i, i, Resultmem[(i)]), UVM_LOW);     end
+    `uvm_info (get_type_name (), $sformatf ("Reset ALL pwdata_address = %h, pwdata_operand1 = %h, pwdata_operand2 = %h, pwdata_constant = %h, pwdata_shift = %h, pwdata_opcode = %h, addres_read = %h, ResultOutput = %h,", pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode, addres_read, ResultOutput), UVM_LOW);
     end
-
-    if(item.prdata[23:21] != 'd0)begin
-      `uvm_error(get_type_name (),$sformatf ("ERROR : The configuration register is wrong! Data of 21, 22 or 23 bits need to be 0"))
-      `uvm_info(get_type_name(), $sformatf ("Expected Value = 000 , Received Value = %b", item.prdata[23:21]), UVM_LOW);
-      ev_ctrl_error =1;
+    if(!item_reset.sw_rst)begin
+      pwdata_address  = 0;
+      pwdata_operand1 = 0;
+      pwdata_operand2 = 0;
+      pwdata_constant = 0;
+      pwdata_shift    = 0;   
+      pwdata_opcode   = 0;  
+      addres_read     = 0;    
+      ResultOutput    = 0; 
+    `uvm_info (get_type_name (), $sformatf ("Reset just the Value for signal pwdata_address = %h, pwdata_operand1 = %h, pwdata_operand2 = %h, pwdata_constant = %h, pwdata_shift = %h, pwdata_opcode = %h, addres_read = %h, ResultOutput = %h,", pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode, addres_read, ResultOutput), UVM_LOW);
     end
+  endfunction
 
-    if(item.prdata[2:0] > 'd4) begin
-      `uvm_error (get_type_name (),$sformatf ("ERROR : The configuration register is wrong! OPCODE is %d", opcode))
-      ev_ctrl_error =1;
-    end
-  end
 
-//////////////////////////////////////////////////////----Event start on address 'h8c----////////////////////////////////////////////////////////////////////////////////////////////
-
-  if(item.paddr == 'h8c && item.pwrite ==1)begin
-    ev_ctrl_start = item.pwdata;
-  end
-  if(item.paddr == 'h8c && item.pwrite ==0)begin
-    ev_ctrl_start = item.prdata;
-  end
-
-//////////////////////////////////////////////////////----Configuration register start----////////////////////////////////////////////////////////////////////////////////////////////
-
-  if(ev_ctrl_start == 1)begin
-     
-    if(opcode == 'd0) begin
-      mem[DST]          = mem[RS0] + imm;
-      `uvm_info (get_type_name(), $sformatf ("For OPCODE %d the operation is %d+%d=%d", opcode, mem[RS0], imm,  mem[DST]), UVM_LOW);
-      `uvm_info (get_type_name(), $sformatf ("Result for this: %d ", mem[DST], ), UVM_LOW);       
-    end
-
-    if(opcode == 'd1) begin
-      mem[DST]          = mem[RS0] * imm;
-      `uvm_info (get_type_name(), $sformatf ("For OPCODE %d the operation is %d*%d =%d", opcode, mem[RS0], imm, mem[DST]), UVM_LOW);
-      `uvm_info (get_type_name(), $sformatf ("Result for this: %d ", mem[DST]), UVM_LOW);         
-    end
-
-    if(opcode == 'd2) begin
-      mem[DST]          = mem[RS0] + mem[RS1];
-      `uvm_info (get_type_name(), $sformatf ("For OPCODE %d the operation is %d + %d = %d", opcode, mem[RS0], mem[RS1], mem[DST]), UVM_LOW);
-      `uvm_info (get_type_name(), $sformatf ("Result for this: %d ", mem[DST]), UVM_LOW);         
-    end
-
-    if(opcode == 'd3) begin
-      mem[DST]          = mem[RS0] * mem[RS1];
-      `uvm_info (get_type_name(), $sformatf ("For OPCODE %d the operation is %d * %d = %d", opcode, mem[RS0], mem[RS1], mem[DST]), UVM_LOW);
-      `uvm_info (get_type_name(), $sformatf ("Result for this: %d ", mem[DST]), UVM_LOW);         
-    end
-
-    if(opcode == 'd4) begin
-      mem[DST]          = mem[RS0] * mem[RS1] + imm;
-      `uvm_info (get_type_name(), $sformatf ("For OPCODE %d the operation is %d*%d+%d=%d", opcode, mem[RS0], mem[RS1], imm,  mem[DST]  ), UVM_LOW);
-      `uvm_info (get_type_name(), $sformatf ("Result for this: %d ", mem[DST]), UVM_LOW);         
-    end
-
-    ev_ctrl_start =0;
-
-    `uvm_info (get_type_name (), $sformatf ("After The Start of configuration register, we have"), UVM_LOW);
-    for (int i=0; i<32; i++) begin
-    `uvm_info (get_type_name (), $sformatf ("At PADDR = %h, the mem[%d] has %d", i*4, i, mem[(i)]), UVM_LOW);   
-    end
-  
-  end 
-    
-  if(ev_ctrl_error)
-  `uvm_error(get_type_name (),$sformatf ("Signal for Error is high in scoreboard, check the rules"))
-  ev_ctrl_error=0;
-    
+virtual function void write_output_port  (output_item item_output);
+  $display("%s", item_output.sprint());
+  if (item_output.OutputResult != ResultOutput)
+  `uvm_error(get_type_name (),$sformatf ("The Output doesnt match. Result in scoreboard = %d, Result from monitor = %d", ResultOutput, item_output.OutputResult))
 endfunction
-
-virtual function void write_interrupt_port  (afvip_intrr_item item_passive);
-  $display("%s", item_passive.sprint());
-endfunction
-
-virtual function void write_reset_port  (afvip_reset_item item_reset);
-  $display("%s", item_reset.sprint());
-  `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD FOR RESET_low = %d", item_reset.rst_n), UVM_LOW);
-  if(!item_reset.rst_n)begin
-    for (int i=0; i<32; i++) mem[i]=0;
-    opcode  = 0;
-    RS0     = 0;
-    RS1     = 0;
-    DST     = 0;
-    imm     = 0;
-  end
-
-endfunction    
-
 
 
 endclass //req_ack_scoreboard extends uvm_scoreboard
