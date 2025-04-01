@@ -28,6 +28,7 @@ class reset_monitor extends uvm_monitor ;
     reset_item data_mon_reset = reset_item::type_id::create ("data_mon_reset", this);
     forever begin
       @(posedge vif_reset.rst_n);
+      data_mon_reset.state = vif_reset.state;
       mon_analysis_port_reset.write(data_mon_reset);
       `uvm_info (get_type_name(), $sformatf ("The data from monitor was received!"), UVM_NONE)
     end
