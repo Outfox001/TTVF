@@ -4,6 +4,7 @@ wire clk;
 wire reset_n;
 wire psel;
 wire penable;
+wire state;
 wire pwrite;
 wire pready;
 wire  [31:0] paddr;
@@ -26,7 +27,8 @@ ALU_control instALU_control(
 .pready(pready),
 .result(result),
 .prdata(prdata),
-.pslverr(pslverr)
+.pslverr(pslverr),
+.state(state)
 
 
 );
@@ -41,7 +43,8 @@ ALU_testbench instALU_testbench(
 .penable(penable),
 .pwrite (pwrite),
 .paddr  (paddr),
-.pwdata (pwdata)
+.pwdata (pwdata),
+.state  (state)
 
 
 

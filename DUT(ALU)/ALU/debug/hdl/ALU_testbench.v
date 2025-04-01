@@ -4,6 +4,7 @@ module ALU_testbench (
 	output reg   psel ,
 	output reg   penable,
 	output reg   pwrite,
+	output reg   state,
 	output reg   [31:0] paddr,
 	output reg   [31:0] pwdata
 	
@@ -33,8 +34,10 @@ pwdata <= 32'b10011000010000011100000011000110;
   @(posedge clk);
    pwrite <= 1'b1;
   @(posedge clk);
-	paddr <= 32'd6;  
+    state  <= 1;
   @(posedge clk);
+  @(posedge clk);
+  paddr <= 32'd6;
   @(posedge clk);
   @(posedge clk);
   @(posedge clk);

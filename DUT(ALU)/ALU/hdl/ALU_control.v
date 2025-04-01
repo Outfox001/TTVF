@@ -6,6 +6,7 @@ module ALU_control (
     input wire [31:0] paddr,
     input wire pwrite,
     input wire [31:0] pwdata,
+	input wire state,
     output reg [31:0] prdata,
     output reg pready,
     output reg pslverr,
@@ -51,7 +52,7 @@ module ALU_control (
         init <= 1'b0;
         received_data <= 0;
     end else begin
-        if (psel && penable && !init) begin
+        if (psel && penable && !init && state) begin
             if (pwrite) begin
                 received_data <= pwdata;
                 pready <= 1'b1;
@@ -286,7 +287,7 @@ always @(posedge clk or negedge reset_n) begin
             result <= 9'b000000000;
 			
         else if (add3) begin
-			result <= op1 + { 4'b0000, constanta} ;
+			result <= op2 + { 4'b0000, constanta} ;
 			endop  <= 1 ;
 			end
     end
