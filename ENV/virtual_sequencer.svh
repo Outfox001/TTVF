@@ -10,7 +10,6 @@ class virtual_sequencer extends uvm_sequencer;
   `uvm_component_utils(virtual_sequencer)
   apb_sequencer     seq_apb;
   reset_sequencer   seq_reset;
-  output_sequencet  seq_output;
   
   function new( string name, uvm_component parent);
     super.new(name, parent);

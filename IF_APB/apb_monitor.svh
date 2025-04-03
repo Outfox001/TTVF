@@ -1,67 +1,58 @@
-class afvip_apb_monitor extends uvm_monitor;
-  `uvm_component_utils(afvip_apb_monitor)
+class apb_monitor extends uvm_monitor ;
+  `uvm_component_utils (apb_monitor)
 
-  //---------------------------------------------CONSTRUCTOR-----------------------------------------------------
+//---------------------------------------------CONSTRUCTOR----------------------------------------------------------------------------------------------------------------------
   function new(string name, uvm_component parent);
     super.new(name, parent);
   endfunction //new()
+ 
+//---------------------------------------------HANDLER--------------------------------------------------------------------------------------------------------------------------
+  virtual apb_interface 	      vif_apb;
+  apb_item 								      delay_mon;
+  bit [31:0] 										delay;
+	uvm_analysis_port #(apb_item) mon_analysis_port_apb;
 
-  //---------------------------------------------HANDLER-----------------------------------------------------------
-  virtual apb_interface vif;
-  afvip_apb_item data_mon;
-  bit [31:0] delay;
-  uvm_analysis_port #(afvip_apb_item) mon_analysis_port;
+//---------------------------------------------BUILD PHASE----------------------------------------------------------------------------------------------------------------------
+  function void build_phase(uvm_phase phase);      
+    super.build_phase (phase);
+    mon_analysis_port_apb = new ("mon_analysis_port_apb", this);
+      if(! uvm_config_db #(virtual apb_interface) :: get (this , "", "vif_apb", vif_apb)) begin
+        `uvm_error (get_type_name (), "Not found")
+      end
+    endfunction
 
-  //---------------------------------------------BUILD PHASE------------------------------------------------------
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    mon_analysis_port = new("mon_analysis_port", this);
-    if (!uvm_config_db #(virtual apb_interface)::get(this, "", "vif", vif)) begin
-      `uvm_error(get_type_name(), "Not found")
-    end
-  endfunction
-
-  //---------------------------------------------RUN PHASE--------------------------------------------------------
+//---------------------------------------------RUN PHASE------------------------------------------------------------------------------------------------------------------------
   task run_phase(uvm_phase phase);
-    afvip_apb_item data_mon = afvip_apb_item::type_id::create("data_mon", this);
-
-    fork
-      
-        begin
-                count_delay(); // Run the task to count the clocks between two high signals
-        end
-        begin
-         forever begin
-         @(vif.cb_monitor iff vif.cb_monitor.psel && vif.cb_monitor.penable && vif.cb_monitor.pready);
-         
-         data_mon.pwrite      = vif.cb_monitor.pwrite;
-         data_mon.delay_psel  = delay; // Transfer the delay data to the monitor
-         delay                = 0; // Reset the delay for the next transaction
-         data_mon.paddr  = vif.cb_monitor.paddr;
-   
-         if (vif.cb_monitor.pwrite == 1) begin
-           data_mon.pwdata = vif.cb_monitor.pwdata;
-         end else begin
-           data_mon.prdata = vif.cb_monitor.prdata;
-         end
-   
-         `uvm_info(get_type_name(), $sformatf("The data from monitor was received!"), UVM_NONE)
-         mon_analysis_port.write(data_mon);
-         $display("%s", data_mon.sprint());
-        end
-    end
-  endtask
-    join_any
-
+    apb_item data_mon = apb_item::type_id::create ("data_mon", this);
     
+	  fork																																														//Run the task to count the clocks between 2 high singal
+      count_delay();
+    join_none
 
-  //---------------------------------------------TASK FOR DELAY--------------------------------------------------
-  task count_delay();
-    forever begin
-      @(vif.cb_monitor);
-      if (vif.cb_monitor.psel == 0)
-        delay = delay + 1;
+	  forever begin
+	  	@(vif_apb.cb_monitor_apb iff vif_apb.cb_monitor_apb.psel && vif_apb.cb_monitor_apb.penable && vif_apb.cb_monitor_apb.pready);	//Wait for the complete transaction
+      data_mon.pwrite 														= vif_apb.cb_monitor_apb.pwrite;													//
+      data_mon.delay_psel 												= delay;																					//Transfer the data for delay, to the monitor
+      delay 																			= 0;																							//Reset the delay for the next transaction
+      if (vif_apb.cb_monitor_apb.pwrite ==1 ) 				begin																								  //First case for transfer data and addr, when it is pwrite high (write)
+        data_mon.pwdata 													= vif_apb.cb_monitor_apb.pwdata;
+        data_mon.paddr  													= vif_apb.cb_monitor_apb.paddr;
+      end else if (vif_apb.cb_monitor_apb.pwrite ==0 )begin																								  //Second case for transfer data and addr, when it is pwrite low (read)
+        data_mon.prdata 													= vif_apb.cb_monitor_apb.prdata;
+        data_mon.paddr  													= vif_apb.cb_monitor_apb.paddr;
+      end
+      `uvm_info (get_type_name(), $sformatf ("The data from monitor was received!"), UVM_NONE)
+      mon_analysis_port_apb.write(data_mon);
+      $display("%s" , data_mon.sprint()); 
+    end
+	endtask
+ 
+//---------------------------------------------TASK FOR DELAY-------------------------------------------------------------------------------------------------------------------
+  
+	task count_delay ();																																						    //Build a specific task for delay where you count  
+    forever begin																																										  //the clocks between 2 high PSEL signal
+      @(vif_apb.cb_monitor_apb ) if(vif_apb.cb_monitor_apb.psel == 0)	delay = delay +1;
     end
   endtask
 
-endclass // afvip_apb_monitor
+endclass 

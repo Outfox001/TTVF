@@ -1,18 +1,10 @@
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Module name: afvip_apb_sequence
-// HDL        : UVM
-// Author     : Paulovici Vlad-Marian
-// Description: Provides one more pre-defined UVM approach which can be utilized to ease the 
-//              implementation of creating a test sequence by combining multiple sequences.
-// Date       : 28 August, 2023
-// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class afvip_apb_sequence extends uvm_sequence #(afvip_apb_item, afvip_apb_item);
+class apb_sequence extends uvm_sequence #(apb_item, apb_item);
 
-    `uvm_object_utils(afvip_apb_sequence)
-    afvip_apb_item item;
-    function new (string name="afvip_apb_sequence");
+    `uvm_object_utils(apb_sequence)
+    apb_item item;
+    function new (string name="apb_sequence");
       super.new(name);    
-      item = afvip_apb_item::type_id::create("item");
+      item = apb_item::type_id::create("item");
     endfunction
 
     bit response_queue_error_report_disabled = 1;
@@ -23,10 +15,10 @@ class afvip_apb_sequence extends uvm_sequence #(afvip_apb_item, afvip_apb_item);
     function bit get_response_queue_error_report_disabled();
     return response_queue_error_report_disabled;
     endfunction
-endclass : afvip_apb_sequence
+endclass : apb_sequence
 
  
-class apb_write_all_sequence extends afvip_apb_sequence;
+class apb_write_all_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_sequence)
 
@@ -54,7 +46,7 @@ class apb_write_all_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_sequence
 
 
-class apb_write_all_with_random_sequence extends afvip_apb_sequence;
+class apb_write_all_with_random_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_with_random_sequence)
 
@@ -82,7 +74,7 @@ class apb_write_all_with_random_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_with_random_sequence
 
 
-class apb_write_one_h40_sequence extends afvip_apb_sequence;
+class apb_write_one_h40_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_one_h40_sequence)
 
@@ -105,7 +97,7 @@ class apb_write_one_h40_sequence extends afvip_apb_sequence;
 endclass : apb_write_one_h40_sequence
 
 
-class apb_write_all_with_curent_x2_sequence extends afvip_apb_sequence;
+class apb_write_all_with_curent_x2_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_with_curent_x2_sequence)
   function new (string name="apb_write_all_with_curent_x2_sequence");
@@ -129,7 +121,7 @@ class apb_write_all_with_curent_x2_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_with_curent_x2_sequence
 
 
-class apb_write_all_with_1_sequence extends afvip_apb_sequence;
+class apb_write_all_with_1_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_with_1_sequence)
 
@@ -157,7 +149,7 @@ class apb_write_all_with_1_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_with_1_sequence
 
 
-class apb_write_all_with_F_sequence extends afvip_apb_sequence;
+class apb_write_all_with_F_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_with_F_sequence)
 
@@ -185,7 +177,7 @@ class apb_write_all_with_F_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_with_F_sequence
 
 
-class apb_read_1_write_1_sequence extends afvip_apb_sequence;
+class apb_read_1_write_1_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_read_1_write_1_sequence)
 
@@ -217,7 +209,7 @@ class apb_read_1_write_1_sequence extends afvip_apb_sequence;
 endclass : apb_read_1_write_1_sequence
 
 
-class apb_write_all_without_one_sequence extends afvip_apb_sequence;
+class apb_write_all_without_one_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_without_one_sequence)
 
@@ -247,7 +239,7 @@ class apb_write_all_without_one_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_without_one_sequence
 
 
-class apb_read_all_sequence extends afvip_apb_sequence;
+class apb_read_all_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_read_all_sequence)
 
@@ -275,7 +267,7 @@ class apb_read_all_sequence extends afvip_apb_sequence;
 endclass : apb_read_all_sequence
 
 
-class apb_write_random_sequence extends afvip_apb_sequence;
+class apb_write_random_sequence extends apb_sequence;
 
     `uvm_object_utils(apb_write_random_sequence)
 
@@ -298,7 +290,7 @@ class apb_write_random_sequence extends afvip_apb_sequence;
 endclass : apb_write_random_sequence
 
 
-class apb_read_random_sequence extends afvip_apb_sequence;
+class apb_read_random_sequence extends apb_sequence;
 
     `uvm_object_utils(apb_read_random_sequence)
 
@@ -322,7 +314,7 @@ class apb_read_random_sequence extends afvip_apb_sequence;
 endclass : apb_read_random_sequence
 
 
-class apb_read_choose_sequence extends afvip_apb_sequence;
+class apb_read_choose_sequence extends apb_sequence;
 
     `uvm_object_utils(apb_read_choose_sequence)
 
@@ -342,7 +334,7 @@ class apb_read_choose_sequence extends afvip_apb_sequence;
 endclass : apb_read_choose_sequence
 
 
-class back2back_sequence extends afvip_apb_sequence;
+class back2back_sequence extends apb_sequence;
 
     `uvm_object_utils(back2back_sequence)
 
@@ -367,7 +359,7 @@ class back2back_sequence extends afvip_apb_sequence;
 endclass : back2back_sequence
 
 
-class apb_write_all_half_superior_sequence extends afvip_apb_sequence;
+class apb_write_all_half_superior_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_half_superior_sequence)
 
@@ -395,7 +387,7 @@ class apb_write_all_half_superior_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_half_superior_sequence
 
 
-class apb_write_all_half_inferior_sequence extends afvip_apb_sequence;
+class apb_write_all_half_inferior_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_half_inferior_sequence)
 
@@ -423,7 +415,7 @@ class apb_write_all_half_inferior_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_half_inferior_sequence
 
 
-class opcode_sequence_0 extends afvip_apb_sequence;
+class opcode_sequence_0 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_0)
 
@@ -450,7 +442,7 @@ class opcode_sequence_0 extends afvip_apb_sequence;
 endclass : opcode_sequence_0
 
 
-class opcode_sequence_1 extends afvip_apb_sequence;
+class opcode_sequence_1 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_1)
 
@@ -477,7 +469,7 @@ class opcode_sequence_1 extends afvip_apb_sequence;
 endclass : opcode_sequence_1
 
 
-class opcode_sequence_2 extends afvip_apb_sequence;
+class opcode_sequence_2 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_2)
 
@@ -504,7 +496,7 @@ class opcode_sequence_2 extends afvip_apb_sequence;
 endclass : opcode_sequence_2
 
 
-class opcode_sequence_3 extends afvip_apb_sequence;
+class opcode_sequence_3 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_3)
 
@@ -531,7 +523,7 @@ class opcode_sequence_3 extends afvip_apb_sequence;
 endclass : opcode_sequence_3
 
 
-class opcode_sequence_4 extends afvip_apb_sequence;
+class opcode_sequence_4 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_4)
 
@@ -558,7 +550,7 @@ class opcode_sequence_4 extends afvip_apb_sequence;
 endclass : opcode_sequence_4
 
 
-class reg_h84_sequence extends afvip_apb_sequence;
+class reg_h84_sequence extends apb_sequence;
 
     `uvm_object_utils(reg_h84_sequence)
     bit[1:0] clr_error;
@@ -580,7 +572,7 @@ class reg_h84_sequence extends afvip_apb_sequence;
 endclass : reg_h84_sequence
 
 
-class reg_h88_sequence extends afvip_apb_sequence;
+class reg_h88_sequence extends apb_sequence;
 
     `uvm_object_utils(reg_h88_sequence)
     rand bit[1:0] pwdata_error;
@@ -598,7 +590,7 @@ class reg_h88_sequence extends afvip_apb_sequence;
 endclass : reg_h88_sequence
 
 
-class reg_h8c_sequence extends afvip_apb_sequence;
+class reg_h8c_sequence extends apb_sequence;
 
     `uvm_object_utils(reg_h8c_sequence)
 
@@ -617,7 +609,7 @@ class reg_h8c_sequence extends afvip_apb_sequence;
 endclass : reg_h8c_sequence
 
 
-class reg_test_same_destination extends afvip_apb_sequence;
+class reg_test_same_destination extends apb_sequence;
 
     `uvm_object_utils(reg_test_same_destination)
 
@@ -671,7 +663,7 @@ class reg_test_same_destination extends afvip_apb_sequence;
 endclass : reg_test_same_destination
 
 
-class reg_write_read_address extends afvip_apb_sequence;
+class reg_write_read_address extends apb_sequence;
 
   `uvm_object_utils(reg_write_read_address)
 
@@ -707,7 +699,7 @@ class reg_write_read_address extends afvip_apb_sequence;
 endclass : reg_write_read_address
 
 
-class reg_error_addres extends afvip_apb_sequence;
+class reg_error_addres extends apb_sequence;
 
   `uvm_object_utils(reg_error_addres)
 
@@ -735,7 +727,7 @@ class reg_error_addres extends afvip_apb_sequence;
 endclass : reg_error_addres
 
 
-class reg_b2bseq extends afvip_apb_sequence;
+class reg_b2bseq extends apb_sequence;
 
   `uvm_object_utils(reg_b2bseq)
 
@@ -775,7 +767,7 @@ class reg_b2bseq extends afvip_apb_sequence;
 endclass : reg_b2bseq
 
 
-class reg_fix_delay extends afvip_apb_sequence;
+class reg_fix_delay extends apb_sequence;
 
   `uvm_object_utils(reg_fix_delay)
 
@@ -815,7 +807,7 @@ class reg_fix_delay extends afvip_apb_sequence;
 endclass : reg_fix_delay
 
 
-class sequence_field_with_0 extends afvip_apb_sequence;
+class sequence_field_with_0 extends apb_sequence;
 
     `uvm_object_utils(sequence_field_with_0)
 
@@ -842,7 +834,7 @@ class sequence_field_with_0 extends afvip_apb_sequence;
 endclass : sequence_field_with_0
 
 
-class sequence_field_with_1 extends afvip_apb_sequence;
+class sequence_field_with_1 extends apb_sequence;
 
     `uvm_object_utils(sequence_field_with_1)
 
@@ -869,7 +861,7 @@ class sequence_field_with_1 extends afvip_apb_sequence;
 endclass : sequence_field_with_1
 
 
-class opcode_sequence_0_to_4 extends afvip_apb_sequence;
+class opcode_sequence_0_to_4 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_0_to_4)
 
@@ -899,7 +891,7 @@ class opcode_sequence_0_to_4 extends afvip_apb_sequence;
 endclass : opcode_sequence_0_to_4
 
 
-class opcode_sequence_read extends afvip_apb_sequence;
+class opcode_sequence_read extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_read)
 
@@ -922,7 +914,7 @@ class opcode_sequence_read extends afvip_apb_sequence;
 endclass : opcode_sequence_read
 
 
-class opcode_sequence_5_to_7 extends afvip_apb_sequence;
+class opcode_sequence_5_to_7 extends apb_sequence;
 
     `uvm_object_utils(opcode_sequence_5_to_7)
 
@@ -952,7 +944,7 @@ class opcode_sequence_5_to_7 extends afvip_apb_sequence;
 endclass : opcode_sequence_5_to_7
 
 
-class apb_write_all_addres_sequence extends afvip_apb_sequence;
+class apb_write_all_addres_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_write_all_addres_sequence)
 
@@ -979,7 +971,7 @@ class apb_write_all_addres_sequence extends afvip_apb_sequence;
 endclass : apb_write_all_addres_sequence
 
 
-class apb_read_all_addres_sequence extends afvip_apb_sequence;
+class apb_read_all_addres_sequence extends apb_sequence;
 
   `uvm_object_utils(apb_read_all_addres_sequence)
 
@@ -1006,7 +998,7 @@ class apb_read_all_addres_sequence extends afvip_apb_sequence;
 endclass : apb_read_all_addres_sequence
 
 
-class apb_write_ones_by_one_sequence extends afvip_apb_sequence;
+class apb_write_ones_by_one_sequence extends apb_sequence;
 
     `uvm_object_utils(apb_write_ones_by_one_sequence)
 
@@ -1038,7 +1030,7 @@ class apb_write_ones_by_one_sequence extends afvip_apb_sequence;
 endclass : apb_write_ones_by_one_sequence
 
 
-class apb_write_ones_by_zero_sequence extends afvip_apb_sequence;
+class apb_write_ones_by_zero_sequence extends apb_sequence;
 
     `uvm_object_utils(apb_write_ones_by_zero_sequence)
 
@@ -1073,7 +1065,7 @@ class apb_write_ones_by_zero_sequence extends afvip_apb_sequence;
 endclass : apb_write_ones_by_zero_sequence
 
 
-class apb_opcode_cum_vreau_eu extends afvip_apb_sequence;
+class apb_opcode_cum_vreau_eu extends apb_sequence;
 
     `uvm_object_utils(apb_opcode_cum_vreau_eu)
 

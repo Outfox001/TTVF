@@ -1,34 +1,25 @@
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Module name: output_agent
 // HDL        : UVM
 // Author     : Paulovici Vlad-Marian
 // Description: An agent encapsulates a Sequencer, Driver and Monitor into a single entity by instantiating and connecting the components together via interfaces.
 // Date       : 28 August, 2023
-// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 class output_agent extends uvm_agent;
-
+  
   `uvm_component_utils(output_agent)
-  function new(string name, uvm_component parent);
+  
+  function new(string name = "output_agent", uvm_component parent = null);
     super.new(name, parent);
-  endfunction //new()
-
-  output_driver            drv_output;
-  output_monitor           mon_output;
-  output_sequencer         seq_output;
-
-  virtual function void build_phase(uvm_phase phase);
-    if(get_is_active())
-      begin
-        seq_output = output_sequencer::type_id::create ("seq_output", this);
-        drv_output = output_driver::type_id::create ("drv_output", this);
-      end
-    mon_output = output_monitor::type_id::create ("mon_output", this);
   endfunction
+  
+  output_monitor   mon_output;
 
-  virtual function void connect_phase (uvm_phase phase);
-    if(get_is_active())
-      drv_output.seq_item_port.connect (seq_output.seq_item_export);
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    if(get_is_active() == UVM_PASSIVE) begin
+      mon_output = output_monitor::type_id::create("mon_output", this);
+      `uvm_info(get_name(), "This is Passive agent", UVM_LOW);
+    end
   endfunction
-
-
-endclass //req_ack_agent extends uvm_agent
+endclass

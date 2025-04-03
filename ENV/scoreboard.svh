@@ -53,10 +53,10 @@ endfunction
   virtual function void write_apb_port  (apb_item item);
 
   //                                  ----------------STARTING THE SCOREBOARD---------
-  uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD "), UVM_LOW);
+  `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD "), UVM_LOW);
   $display("At %0t The item is :", $time)    ;
 
-  uvm_info (get_type_name(), $sformatf ("PWRITE Check"), UVM_LOW);
+  `uvm_info (get_type_name(), $sformatf ("PWRITE Check"), UVM_LOW);
   if(item.pwrite) begin
     pwdata_address   = item.pwdata[5:0]  ;
     pwdata_operand1  = item.pwdata[13:6] ;
@@ -70,7 +70,7 @@ endfunction
     addres_read      = item.paddr;
   `uvm_info(get_type_name(), $sformatf ("For Configuration pwrite = %b , paddr = %d, internal addr =%d", item.pwrite, item.paddr, addres_read), UVM_LOW);
 
-  uvm_info (get_type_name(), $sformatf ("OPCODE Check"), UVM_LOW);
+  `uvm_info (get_type_name(), $sformatf ("OPCODE Check"), UVM_LOW);
 
   if(item.pwrite) begin
   if(pwdata_opcode == 4'b0001)begin
@@ -153,8 +153,8 @@ endfunction
 
   virtual function void write_reset_port  (reset_item item_reset);
     $display("%s", item_reset.sprint());
-    `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD FOR H_RESET = %d", item_reset.hw_rst), UVM_LOW);
-    if(!item_reset.hw_rst)begin
+    `uvm_info (get_type_name(), $sformatf ("START THE SCOREBOARD FOR H_RESET = %d", item_reset.reset_n), UVM_LOW);
+    if(!item_reset.reset_n)begin
       for (int i=0; i<16; i++) Resultmem[i]=0;
       pwdata_address  = 0;
       pwdata_operand1 = 0;
@@ -168,24 +168,13 @@ endfunction
       `uvm_info (get_type_name (), $sformatf ("At ADDR = %d, the Resultmem[%d] has %d", i, i, Resultmem[(i)]), UVM_LOW);     end
     `uvm_info (get_type_name (), $sformatf ("Reset ALL pwdata_address = %h, pwdata_operand1 = %h, pwdata_operand2 = %h, pwdata_constant = %h, pwdata_shift = %h, pwdata_opcode = %h, addres_read = %h, ResultOutput = %h,", pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode, addres_read, ResultOutput), UVM_LOW);
     end
-    if(!item_reset.sw_rst)begin
-      pwdata_address  = 0;
-      pwdata_operand1 = 0;
-      pwdata_operand2 = 0;
-      pwdata_constant = 0;
-      pwdata_shift    = 0;   
-      pwdata_opcode   = 0;  
-      addres_read     = 0;    
-      ResultOutput    = 0; 
-    `uvm_info (get_type_name (), $sformatf ("Reset just the Value for signal pwdata_address = %h, pwdata_operand1 = %h, pwdata_operand2 = %h, pwdata_constant = %h, pwdata_shift = %h, pwdata_opcode = %h, addres_read = %h, ResultOutput = %h,", pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode, addres_read, ResultOutput), UVM_LOW);
-    end
   endfunction
 
 
 virtual function void write_output_port  (output_item item_output);
   $display("%s", item_output.sprint());
-  if (item_output.OutputResult != ResultOutput)
-  `uvm_error(get_type_name (),$sformatf ("The Output doesnt match. Result in scoreboard = %d, Result from monitor = %d", ResultOutput, item_output.OutputResult))
+  if (item_output.result != ResultOutput)
+  `uvm_error(get_type_name (),$sformatf ("The Output doesnt match. Result in scoreboard = %d, Result from monitor = %d", ResultOutput, item_output.result))
 endfunction
 
 

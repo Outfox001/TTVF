@@ -7,15 +7,15 @@
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-package afvip_test_pkg;
+package test_pkg;
 
   import uvm_pkg::*;
-  import afvip_apb_pkg::*;
-  import afvip_reset_pkg::*;
-  import afvip_intrr_pkg::*;
-  import afvip_env_pkg::*;
+  import apb_pkg::*;
+  import reset_pkg::*;
+  import output_pkg::*;
+  import env_pkg::*;
 
   `include "uvm_macros.svh"
-  `include "afvip_test_lib.svh"
+  `include "test_lib.svh"
    
 endpackage

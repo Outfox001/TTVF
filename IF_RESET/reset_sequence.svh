@@ -20,15 +20,13 @@ class reset_sequence extends uvm_sequence;
     begin 
     test1 = reset_item::type_id::create("test1");
     start_item(test1);
-      test1.rst_n =0;
-	  test1.state =0;
+      test1.reset_n =0;
     finish_item(test1);
     #50;
     start_item(test1);
-      test1.rst_n =1;
-	  test1.state =1;
+      test1.reset_n =1;
     finish_item(test1);
     end
   endtask
 
-endclass //master_seq extends suvm_sequence
+endclass //master_seq extends uvm_sequence

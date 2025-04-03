@@ -1,21 +1,12 @@
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Module name: afvip_apb_coverage
-// HDL        : UVM
-// Author     : Paulovici Vlad-Marian
-// Description: It is a user-defined metric that measures how much of the design specification that are captured in the test plan has been exercised.
-// Date       : 28 August, 2023
-// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-class afvip_apb_coverage extends uvm_subscriber #(afvip_apb_item);
+class apb_coverage extends uvm_subscriber #(apb_item);
 
   //----------------------------------------------------------------------------
-  `uvm_component_utils(afvip_apb_coverage)
+  `uvm_component_utils(apb_coverage)
   //----------------------------------------------------------------------------
-  afvip_apb_item cov_item;
+  apb_item cov_item;
   // virtual afvip_if vif;
   //----------------------------------------------------------------------------
-  function new(string name="afvip_apb_coverage",uvm_component parent);
+  function new(string name="apb_coverage",uvm_component parent);
     super.new(name,parent);
     Cov_reg = new();
     Cov_data = new();
@@ -175,7 +166,7 @@ class afvip_apb_coverage extends uvm_subscriber #(afvip_apb_item);
     }
   endgroup
   //-------------------------------------------------------------------------------
- function void write(afvip_apb_item t);
+ function void write(apb_item t);
     cov_item=t;
     Cov_reg.sample();
     Cov_data.sample();
@@ -226,4 +217,4 @@ class afvip_apb_coverage extends uvm_subscriber #(afvip_apb_item);
   endfunction
   //----------------------------------------------------------------------------
   
-endclass:afvip_apb_coverage
+endclass:apb_coverage

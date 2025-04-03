@@ -7,13 +7,10 @@
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class reset_item extends uvm_sequence_item;
 
-  bit hw_rst;
-  bit sw_rst;
-  bit state;
+  bit reset_n;
+
   `uvm_object_utils_begin(reset_item)
-    `uvm_field_int (hw_rst,      UVM_DEFAULT)
-    `uvm_field_int (sw_rst,      UVM_DEFAULT)
-    `uvm_field_int (state,       UVM_DEFAULT)
+    `uvm_field_int (reset_n,      UVM_DEFAULT)
   `uvm_object_utils_end
                      
   function new (string name = "reset_item");

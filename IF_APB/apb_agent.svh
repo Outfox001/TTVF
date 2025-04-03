@@ -1,10 +1,3 @@
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Module name: apb_agent
-// HDL        : UVM
-// Author     : Paulovici Vlad-Marian
-// Description: An agent encapsulates a Sequencer, Driver and Monitor into a single entity by instantiating and connecting the components together via interfaces.
-// Date       : 28 August, 2023
-// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class apb_agent extends uvm_agent;
 
   `uvm_component_utils(apb_agent)
@@ -12,22 +5,22 @@ class apb_agent extends uvm_agent;
     super.new(name, parent);
   endfunction //new()
 
-  afvip_apb_driver            drv0;
-  output_monitor           mon0;
-  afvip_apb_sequencer         seq0;
+  apb_driver            drv_apb;
+  apb_monitor           mon_apb;
+  apb_sequencer         seq_apb;
 
   virtual function void build_phase(uvm_phase phase);
     if(get_is_active())
       begin
-        seq0 = afvip_apb_sequencer::type_id::create ("seq0", this);
-        drv0 = afvip_apb_driver::type_id::create ("drv0", this);
+        seq_apb = apb_sequencer::type_id::create ("seq_apb", this);
+        drv_apb = apb_driver::type_id::create ("drv_apb", this);
       end
-    mon0 = output_monitor::type_id::create ("mon0", this);
+    mon_apb = apb_monitor::type_id::create ("mon_apb", this);
   endfunction
 
   virtual function void connect_phase (uvm_phase phase);
     if(get_is_active())
-      drv0.seq_item_port.connect (seq0.seq_item_export);
+      drv_apb.seq_item_port.connect (seq_apb.seq_item_export);
   endfunction
 
 

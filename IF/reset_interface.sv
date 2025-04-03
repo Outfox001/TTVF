@@ -10,6 +10,5 @@ interface reset_interface(
   );
 
   import uvm_pkg::*;
-  bit hw_rst;
-  bit sw_rst;
+  bit reset_n;
 endinterface

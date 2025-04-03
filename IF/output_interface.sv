@@ -7,16 +7,14 @@
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 interface output_interface(
   input clk,
-  input hw_rst,
-  input sw_rst
+  input reset_n
   );
 
   import uvm_pkg::*;
+  wire     [8:0]         result   ;
 
   clocking cb_master_output @(posedge clk);
-
-
-
+  input result;
   endclocking
 
 endinterface

@@ -14,27 +14,19 @@ class test_lib extends uvm_test;
   endfunction
 
   environment env;
-  uvm_tlm_analysis_fifo#(afvip_intrr_item) interrupt_fifo;
 
   virtual function void build_phase (uvm_phase phase);
     super.build_phase (phase);
-    env = environment::type_id::create("env", this);
-    interrupt_fifo = new("interrupt_fifo", this);
+    env = environment::type_id::create("env", this);  
   endfunction
 
   virtual function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
-    env.agent_passive.mon_passive.mon_analysis_port_passive.connect(interrupt_fifo.analysis_export);
   endfunction : connect_phase
  
   virtual function void end_of_elaboration_phase(uvm_phase phase);
     uvm_top.print_topology();
   endfunction
-
-  task wait_interrupt();
-    afvip_intrr_item item;
-    interrupt_fifo.get(item);
-  endtask : wait_interrupt
 endclass : test_lib
 
 
@@ -49,13 +41,13 @@ class afvip_test_write_all_read_all extends test_lib;
 
     apb_write_all_sequence apb_write_all_sequence   = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence     = apb_read_all_sequence::type_id::create("item"); // vezi numele din paranteze
-    afvip_reset_sequence afvip_reset_sequence   = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence   = reset_sequence::type_id::create("item_rst");
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
   
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("afvip_test_write_all_read_all TEST: Completed");
@@ -77,13 +69,13 @@ class afvip_test_write_all_read_one extends test_lib;
 
     apb_write_all_sequence apb_write_all_sequence = apb_write_all_sequence::type_id::create("item");
     apb_read_random_sequence apb_read_random_sequence = apb_read_random_sequence::type_id::create("item"); // vezi numele din paranteze
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    apb_read_random_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    apb_read_random_sequence.start(env.agent_apb.seq_apb);
   
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("test....");
@@ -102,12 +94,12 @@ class afvip_test_back2back extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
     back2back_sequence back2back_sequence = back2back_sequence::type_id::create("item");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    back2back_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    back2back_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("test....");
@@ -129,12 +121,12 @@ class afvip_test_register_write_all_with_1 extends test_lib;
 
     apb_write_all_with_1_sequence apb_write_all_with_1_sequence = apb_write_all_with_1_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_with_1_sequence.start(env.agent_apb.seq0);        
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_with_1_sequence.start(env.agent_apb.seq_apb);        
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_register_write_all_with_1");
     $display("SUCCES");
@@ -156,12 +148,12 @@ class afvip_test_register_write_all_with_F extends test_lib;
       
     apb_write_all_with_F_sequence apb_write_all_with_F_sequence = apb_write_all_with_F_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_with_F_sequence.start(env.agent_apb.seq0);        
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_with_F_sequence.start(env.agent_apb.seq_apb);        
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_register_write_all_with_F");
     $display("SUCCES");
@@ -183,12 +175,12 @@ class afvip_test_register_write_all_with_random extends test_lib;
 
     apb_write_all_with_random_sequence apb_write_all_with_random_sequence       = apb_write_all_with_random_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                                 = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                   = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                   = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_with_random_sequence.start(env.agent_apb.seq0);        
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_with_random_sequence.start(env.agent_apb.seq_apb);        
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_register_write_all_with_random");
     $display("SUCCES");
@@ -211,12 +203,12 @@ class afvip_test_overflow extends test_lib;
     apb_write_random_sequence apb_write_random_sequence                           = apb_write_random_sequence::type_id::create("item");
     apb_write_all_with_curent_x2_sequence apb_write_all_with_curent_x2_sequence   = apb_write_all_with_curent_x2_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                                   = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                     = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                     = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_with_curent_x2_sequence.start(env.agent_apb.seq0);        
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_with_curent_x2_sequence.start(env.agent_apb.seq_apb);        
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_overflow");
     $display("SUCCES");
@@ -237,14 +229,14 @@ class afvip_test_reset_all extends test_lib;
 
     apb_write_all_sequence apb_write_all_sequence                                         = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                                           = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                             = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                             = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);    
-    apb_read_all_sequence.start(env.agent_apb.seq0);
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);    
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);    
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
+    reset_sequence.start(env.agent_reset.seq_reset);    
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_reset_all");
     $display("SUCCES");
@@ -267,14 +259,14 @@ class afvip_test_reset_half extends test_lib;
     apb_write_all_half_superior_sequence apb_write_all_half_superior_sequence             = apb_write_all_half_superior_sequence::type_id::create("item");
     apb_write_all_half_inferior_sequence apb_write_all_half_inferior_sequence             = apb_write_all_half_inferior_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                                           = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                             = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                             = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_half_superior_sequence.start(env.agent_apb.seq0);    
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);    
-    apb_write_all_half_inferior_sequence.start(env.agent_apb.seq0);  
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_half_superior_sequence.start(env.agent_apb.seq_apb);    
+    reset_sequence.start(env.agent_reset.seq_reset);    
+    apb_write_all_half_inferior_sequence.start(env.agent_apb.seq_apb);  
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     $display("TEST : afvip_test_reset_half");
     $display("SUCCES");
@@ -293,7 +285,7 @@ class afvip_test_opcode_functionally extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence       = apb_write_all_sequence::type_id::create("item");
     opcode_sequence_0 opcode_sequence_0                 = opcode_sequence_0::type_id::create("item");
     opcode_sequence_1 opcode_sequence_1                 = opcode_sequence_1::type_id::create("item");
@@ -308,39 +300,34 @@ class afvip_test_opcode_functionally extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_0.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_0.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_1.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_1.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_2.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_2.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_3.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_3.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_4.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_4.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_opcode_functionally COMPLETE");
@@ -359,7 +346,7 @@ class afvip_test_error_opcode extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence       = apb_write_all_sequence::type_id::create("item");
     opcode_sequence_5_to_7 opcode_sequence_5_to_7       = opcode_sequence_5_to_7::type_id::create("item");
     reg_h84_sequence reg_h84_sequence                   = reg_h84_sequence::type_id::create("item");
@@ -369,15 +356,14 @@ class afvip_test_error_opcode extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_5_to_7.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_5_to_7.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_error_opcode COMPLETE");
@@ -397,11 +383,11 @@ class afvip_test_read_all_without_write extends test_lib;
   virtual task run_phase (uvm_phase phase);
 
     apb_read_all_sequence apb_read_all_sequence           = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence             = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence             = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_read_all_without_write COMPLETE");
@@ -423,14 +409,14 @@ class afvip_test_read_all_write_all extends test_lib;
     apb_write_all_sequence apb_write_all_sequence                             = apb_write_all_sequence::type_id::create("item");
     apb_write_all_without_one_sequence apb_write_all_without_one_sequence     = apb_write_all_without_one_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                               = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                 = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                 = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
     
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
-    apb_write_all_without_one_sequence.start(env.agent_apb.seq0);        
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
+    apb_write_all_without_one_sequence.start(env.agent_apb.seq_apb);        
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST : afvip_test_read_all_write_all");
@@ -452,12 +438,12 @@ class afvip_test_write_one_read_all extends test_lib;
     apb_write_all_sequence apb_write_all_sequence                             = apb_write_all_sequence::type_id::create("item");
     apb_write_one_h40_sequence apb_write_one_h40_sequence                     = apb_write_one_h40_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                               = apb_read_all_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                 = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                 = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
     
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_one_h40_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_one_h40_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST : afvip_test_write_one_read_all");
@@ -477,11 +463,11 @@ class afvip_test_read_1_after_every_register_write extends test_lib;
   virtual task run_phase (uvm_phase phase);
 
     apb_read_1_write_1_sequence apb_read_1_write_1_sequence                   = apb_read_1_write_1_sequence::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                                 = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                 = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
     
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_read_1_write_1_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_1_write_1_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST : afvip_test_read_1_after_every_register_write");
@@ -501,11 +487,11 @@ class afvip_test_data_same_destionation extends test_lib;
   virtual task run_phase (uvm_phase phase);
 
     reg_test_same_destination reg_test_same_destination = reg_test_same_destination::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    reg_test_same_destination.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    reg_test_same_destination.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_data_same_destionation");
@@ -524,11 +510,11 @@ class afvip_test_write_read_addres extends test_lib;
   virtual task run_phase (uvm_phase phase);
       
     reg_write_read_address reg_write_read_address               = reg_write_read_address::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                   = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                   = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    reg_write_read_address.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    reg_write_read_address.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_write_read_addres");
@@ -548,11 +534,11 @@ class afvip_test_addres_error extends test_lib;
   virtual task run_phase (uvm_phase phase);
       
     reg_error_addres reg_error_addres                     = reg_error_addres::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence             = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence             = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    reg_error_addres.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    reg_error_addres.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_addres_error");
@@ -573,11 +559,11 @@ class afvip_test_back_to_back_tranzaction extends test_lib;
   virtual task run_phase (uvm_phase phase);
       
     reg_b2bseq reg_b2bseq = reg_b2bseq::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    reg_b2bseq.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    reg_b2bseq.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_back_to_back_tranzaction");
@@ -598,11 +584,11 @@ class afvip_test_delay_tranzaction extends test_lib;
   virtual task run_phase (uvm_phase phase);
       
     reg_fix_delay reg_fix_delay                         = reg_fix_delay::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    reg_fix_delay.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    reg_fix_delay.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_delay_tranzaction");
@@ -624,13 +610,13 @@ class afvip_test_instruction_register_field_0 extends test_lib;
     apb_write_all_sequence apb_write_all_sequence               = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                 = apb_read_all_sequence::type_id::create("item");
     sequence_field_with_0 sequence_field_with_0                 = sequence_field_with_0::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                   = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                   = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    sequence_field_with_0.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    sequence_field_with_0.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
    `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_instruction_register_field_0");
@@ -653,13 +639,13 @@ class afvip_test_instruction_register_field_with_not0 extends test_lib;
     apb_write_all_sequence apb_write_all_sequence                   = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                     = apb_read_all_sequence::type_id::create("item");
     sequence_field_with_1 sequence_field_with_1                     = sequence_field_with_1::type_id::create("item");
-    afvip_reset_sequence afvip_reset_sequence                       = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                       = reset_sequence::type_id::create("item_rst");
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    sequence_field_with_1.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    sequence_field_with_1.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("TEST COMPLETE : afvip_test_instruction_register_field_with_not0");
@@ -678,7 +664,7 @@ class afvip_test_instruction_data_fields_random extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence       = apb_write_all_sequence::type_id::create("item");
     opcode_sequence_0_to_4 opcode_sequence_0_to_4       = opcode_sequence_0_to_4::type_id::create("item");
     reg_h84_sequence reg_h84_sequence                   = reg_h84_sequence::type_id::create("item");
@@ -688,19 +674,18 @@ class afvip_test_instruction_data_fields_random extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
 
     for (int i=1;i<=10;i++) begin
-    opcode_sequence_0_to_4.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    opcode_sequence_0_to_4.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
 
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_opcode_functionally COMPLETE");
@@ -719,7 +704,7 @@ class afvip_test_instruction_data_fields_read extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence       = apb_write_all_sequence::type_id::create("item");
     opcode_sequence_0_to_4 opcode_sequence_0_to_4       = opcode_sequence_0_to_4::type_id::create("item");
     reg_h84_sequence reg_h84_sequence                   = reg_h84_sequence::type_id::create("item");
@@ -729,19 +714,18 @@ class afvip_test_instruction_data_fields_read extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
 
     for (int i=0;i<10;i++) begin
-    opcode_sequence_0_to_4.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    opcode_sequence_0_to_4.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
 
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_instruction_data_fields_read COMPLETE");
@@ -760,15 +744,15 @@ class afvip_test_write_read_all_addres extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence                           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                           = reset_sequence::type_id::create("item_rst");
     apb_write_all_addres_sequence apb_write_all_addres_sequence         = apb_write_all_addres_sequence::type_id::create("item");
     apb_read_all_addres_sequence apb_read_all_addres_sequence           = apb_read_all_addres_sequence::type_id::create("item");
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_addres_sequence.start(env.agent_apb.seq0);
-    apb_read_all_addres_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_addres_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_addres_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_write_read_all_addres COMPLETE");
@@ -788,15 +772,15 @@ class afvip_test_write_shift_by_1 extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence                             = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                             = reset_sequence::type_id::create("item_rst");
     apb_write_ones_by_one_sequence apb_write_ones_by_one_sequence         = apb_write_ones_by_one_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                           = apb_read_all_sequence::type_id::create("item");
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_ones_by_one_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_ones_by_one_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_write_shift_by_1 COMPLETE");
@@ -815,15 +799,15 @@ class afvip_test_write_shift_by_0 extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence                               = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                               = reset_sequence::type_id::create("item_rst");
     apb_write_ones_by_zero_sequence apb_write_ones_by_zero_sequence         = apb_write_ones_by_zero_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                             = apb_read_all_sequence::type_id::create("item");
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_ones_by_zero_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_ones_by_zero_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_write_shift_by_0 COMPLETE");
@@ -842,7 +826,7 @@ class afvip_test_opcode_urandom extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence           = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence           = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence       = apb_write_all_sequence::type_id::create("item");
     apb_opcode_cum_vreau_eu apb_opcode_cum_vreau_eu     = apb_opcode_cum_vreau_eu::type_id::create("item");
     opcode_sequence_5_to_7 opcode_sequence_5_to_7       = opcode_sequence_5_to_7::type_id::create("item");
@@ -854,21 +838,19 @@ class afvip_test_opcode_urandom extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_5_to_7.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_5_to_7.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    opcode_sequence_2.start(env.agent_apb.seq0);
-    reg_h8c_sequence.start(env.agent_apb.seq0);
-    wait_interrupt(); 
-    reg_h84_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    opcode_sequence_2.start(env.agent_apb.seq_apb);
+    reg_h8c_sequence.start(env.agent_apb.seq_apb);
+    reg_h84_sequence.start(env.agent_apb.seq_apb);
     assert(reg_h88_sequence.randomize() with {pwdata_error == reg_h84_sequence.clr_error;});
-    reg_h88_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reg_h88_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)
     $display("Test afvip_test_opcode_urandom COMPLETE");
@@ -887,7 +869,7 @@ class afvip_full_test_without_error extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence                                 = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                 = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence                             = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                               = apb_read_all_sequence::type_id::create("item");
     apb_write_all_half_superior_sequence apb_write_all_half_superior_sequence = apb_write_all_half_superior_sequence::type_id::create("item");
@@ -901,48 +883,45 @@ class afvip_full_test_without_error extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
-    apb_write_all_half_superior_sequence.start(env.agent_apb.seq0);
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_half_inferior_sequence.start(env.agent_apb.seq0);
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
+    apb_write_all_half_superior_sequence.start(env.agent_apb.seq_apb);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_half_inferior_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     for(int i=0;i<=100;i++) begin
-      opcode_sequence_0_to_4.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      opcode_sequence_0_to_4.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_sequence.start(env.agent_apb.seq0);
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
+    reset_sequence.start(env.agent_reset.seq_reset);
 
-    apb_write_all_with_random_sequence.start(env.agent_apb.seq0);
+    apb_write_all_with_random_sequence.start(env.agent_apb.seq_apb);
     for(int i=0;i<=10;i++) begin
-      sequence_field_with_0.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      sequence_field_with_0.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     for(int i=0;i<=100;i++) begin
-      opcode_sequence_0_to_4.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      opcode_sequence_0_to_4.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     
 
@@ -963,7 +942,7 @@ class afvip_full_test_with_error extends test_lib;
 
   virtual task run_phase (uvm_phase phase);
 
-    afvip_reset_sequence afvip_reset_sequence                                 = afvip_reset_sequence::type_id::create("item_rst");
+    reset_sequence reset_sequence                                 = reset_sequence::type_id::create("item_rst");
     apb_write_all_sequence apb_write_all_sequence                             = apb_write_all_sequence::type_id::create("item");
     apb_read_all_sequence apb_read_all_sequence                               = apb_read_all_sequence::type_id::create("item");
     apb_write_all_addres_sequence apb_write_all_addres_sequence               = apb_write_all_addres_sequence::type_id::create("item");
@@ -976,41 +955,38 @@ class afvip_full_test_with_error extends test_lib;
 
     phase.raise_objection(this);
 
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
-    apb_write_all_addres_sequence.start(env.agent_apb.seq0);
-    apb_read_all_addres_sequence.start(env.agent_apb.seq0);
+    reset_sequence.start(env.agent_reset.seq_reset);
+    apb_write_all_addres_sequence.start(env.agent_apb.seq_apb);
+    apb_read_all_addres_sequence.start(env.agent_apb.seq_apb);
 
     for(int i=0;i<=100;i++) begin
-      opcode_sequence_5_to_7.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      opcode_sequence_5_to_7.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_addres_sequence.start(env.agent_apb.seq0);
-    afvip_reset_sequence.start(env.agent_reset.seq_reset);
+    apb_read_all_addres_sequence.start(env.agent_apb.seq_apb);
+    reset_sequence.start(env.agent_reset.seq_reset);
 
-    apb_write_all_sequence.start(env.agent_apb.seq0);
+    apb_write_all_sequence.start(env.agent_apb.seq_apb);
     for(int i=0;i<=100;i++) begin
-      sequence_field_with_1.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      sequence_field_with_1.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
 
     for(int i=0;i<=100;i++) begin
-      opcode_sequence_5_to_7.start(env.agent_apb.seq0);
-      reg_h8c_sequence.start(env.agent_apb.seq0);
-      wait_interrupt(); 
-      reg_h84_sequence.start(env.agent_apb.seq0);
+      opcode_sequence_5_to_7.start(env.agent_apb.seq_apb);
+      reg_h8c_sequence.start(env.agent_apb.seq_apb);
+      reg_h84_sequence.start(env.agent_apb.seq_apb);
       assert(reg_h88_sequence.randomize() with { pwdata_error == reg_h84_sequence.clr_error; });
-      reg_h88_sequence.start(env.agent_apb.seq0);
+      reg_h88_sequence.start(env.agent_apb.seq_apb);
     end
-    apb_read_all_sequence.start(env.agent_apb.seq0);
+    apb_read_all_sequence.start(env.agent_apb.seq_apb);
     
 
     `uvm_info(get_type_name(),$sformatf ("To be continued...."), UVM_NONE)

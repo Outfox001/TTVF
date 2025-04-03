@@ -23,92 +23,92 @@ endsequence
 //----- Properties -----
 //parametric property to check signal is not X/Z
 property pr_generic_not_unknown_psel ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(psel) ;
 endproperty 
 property pr_generic_not_unknown_pwrite ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(pwrite) ;
 endproperty 
 property pr_generic_not_unknown_pready ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(pready) ;
 endproperty 
 property pr_generic_not_unknown_penable ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(penable) ;
 endproperty 
 property pr_generic_not_unknown_prdata ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(prdata) ;
 endproperty 
 property pr_generic_not_unknown_pwdata ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(pwdata) ;
 endproperty 
 property pr_generic_not_unknown_paddr ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$isunknown(paddr) ;
 endproperty 
 //parametric property to check if signal stable during the transfer. If the signal changed means the state became IDLE or SETUP, i.e. the transfer just finished.
 property pr_generic_stable_paddr ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$stable(paddr) |-> setup_phase or idle_phase ;
 endproperty
 property pr_generic_stable_pwrite ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$stable(pwrite) |-> setup_phase or idle_phase ;
 endproperty
 property pr_generic_stable_pslverr;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$stable(pslverr) |-> setup_phase or idle_phase ;
 endproperty
 //same as pr_generic_stable but for pwdata. it should be stable only in WRITE transfers, i.e. pwrite=1
 property pwdata_in_wr_transfer ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !$stable(pwdata) |-> (!pwrite) or (setup_phase or idle_phase) ;
 endproperty
 // for penable and psel i can't use phases, since the phases are defined using these lines
 property penable_in_transfer ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       $fell(penable) |-> idle_phase or ($past(penable) && $past(pready)) ;
 endproperty
 //check if psel stable during transfer. i.e. psel can fall only after tranfer completed (pready=1)
 property psel_in_transfer ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       !psel && $past(psel) |-> $past(penable) && $past(pready) ; //The antecedent is NOT equal to ($fell) since 'X'->'0' also activates $fell
 endproperty
 //check if pslverr is corectly updated
 property pslverr_error_ctrl ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
        error_ctrl_opcode |-> pslverr ; 
 endproperty
 //check if afvip_intr is high between 1-10 tacs
 property afvip_intr_ctrl ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       afvip_intr_ver |-> ##[1:10](afvip_intr) ; //The antecedent is NOT equal to ($fell) since 'X'->'0' also activates $fell
 endproperty
 //check if the system is active when reset is on low
 property reset_active_low ;
    @(posedge clk) 
-   !rst_n |=> ##[0:$] $rose(rst_n);
+   !reset_n |=> ##[0:$] $rose(reset_n);
 endproperty
 
 //Operating States 
 property idle_state ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       idle_phase |=> idle_phase or setup_phase ;
 endproperty
 property setup_state ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       setup_phase |=> access_phase_wait or access_phase_last ;
 endproperty
 property access_wait_state ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       access_phase_wait |=> access_phase_wait or access_phase_last ;
 endproperty
 property access_last_state ;
-   @(posedge clk) disable iff(!rst_n)
+   @(posedge clk) disable iff(!reset_n)
       access_phase_last |=> idle_phase or setup_phase ;
 endproperty
 
