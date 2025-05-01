@@ -12,9 +12,17 @@ interface output_interface(
 
   import uvm_pkg::*;
   wire     [8:0]         result   ;
+  wire psel;
+  wire penable;
+  wire pwrite;
+  wire pready;
 
   clocking cb_master_output @(posedge clk);
   input result;
+  input psel;
+  input penable;
+  input pwrite;
+  input pready;
   endclocking
 
 endinterface

@@ -17,13 +17,13 @@ module project_top();
   import reset_pkg::*;
   import output_pkg::*;
   import env_pkg::*;
-    
+
 bit clk;
-reg reset_n;
+bit reset_n;
 reg pslverr;
 reg penable;
 reg psel;
-reg [0:15] paddr;
+reg [0:31] paddr;
 reg [0:31] pwdata;
 reg [0:31] prdata;
 reg pwrite;
@@ -37,7 +37,9 @@ reg state;
   output_interface intf_output  ( .clk(clk),
                                   .reset_n(reset_n));
   reset_interface intf_reset    (.clk(clk));
-                                        
+
+
+                                 
 
 ALU_control #()alu_dut(
   .clk        (clk)       ,
@@ -47,11 +49,11 @@ ALU_control #()alu_dut(
   .paddr      (paddr)     ,
   .pwrite     (pwrite)    ,
   .pwdata     (pwdata)    ,
-  .pready     (pready)    ,
+  .state      (state)     ,
   .prdata     (prdata)    ,
+  .pready     (pready)    ,
   .pslverr    (pslverr)   ,
-  .result     (result)    ,
-  .state      (state)     );
+  .result     (result)    );
 
 
 initial begin
@@ -59,45 +61,38 @@ initial begin
   #5 clk = ~clk; 
 end
 
+
 initial begin
-  uvm_config_db#(virtual apb_interface)     :: set (uvm_root::get(), "*.agent_apb.*",     "vif_apb" ,     intf_apb );
+  uvm_config_db#(virtual apb_interface)     :: set (uvm_root::get(), "*",     "vif_apb" ,     intf_apb );
   uvm_config_db#(virtual output_interface)  :: set (uvm_root::get(), "*.agent_output.*",  "vif_output" ,  intf_output );
   uvm_config_db#(virtual reset_interface)   :: set (uvm_root::get(), "*.agent_reset.*",   "vif_reset" ,   intf_reset );
 
 
-run_test("afvip_test_register_write_all_with_1");
-//run_test("afvip_test_register_write_all_with_F");
-//run_test("afvip_test_register_write_all_with_random");
-//run_test("afvip_test_overflow");
-//run_test("afvip_test_reset_all");
-//run_test("afvip_test_reset_half");
-//run_test("afvip_test_opcode_functionally");
-//run_test("afvip_test_error_opcode");
-//run_test("afvip_test_read_all_without_write");
-//run_test("afvip_test_read_all_write_all");
-//run_test("afvip_test_write_one_read_all");
-//run_test("afvip_test_read_1_after_every_register_write");
-//run_test("afvip_test_data_same_destionation");
-//run_test("afvip_test_write_read_addres");
-//run_test("afvip_test_addres_error");
-//run_test("afvip_test_back_to_back_tranzaction");
-//run_test("afvip_test_delay_tranzaction");
-//run_test("afvip_test_instruction_register_field_0");
-//run_test("afvip_test_instruction_register_field_with_not0");
-//run_test("afvip_test_instruction_data_fields_random");
-//run_test("afvip_test_instruction_data_fields_read");
-//run_test("afvip_test_write_read_all_addres");
-//run_test("afvip_test_write_shift_by_1");
-//run_test("afvip_test_write_shift_by_0");
-
-//run_test("afvip_test_opcode_urandom");
-//run_test("afvip_full_test_without_error");
-//run_test("afvip_full_test_with_error");
-
+// run_test("first_test");
+// run_test("test_write_all_read_all");
+// run_test("test_write_all_read_all_error");
+// run_test("test_opcode_error_check_with_0000");
+run_test("test_opcode_check_full");
 
 
 
 
 end
+
+assign intf_output.result           = result;           
+assign intf_output.psel             = psel;           
+assign intf_output.penable          = penable;           
+assign intf_output.pwrite           = pwrite;           
+assign intf_output.pready           = pready;           
+assign reset_n                      = intf_reset.reset_n;
+assign state                        = intf_reset.state;
+assign intf_apb.prdata                 = prdata;
+assign intf_apb.pready                 = pready;
+assign intf_apb.pslverr                = pslverr;
+assign pwrite                       = intf_apb.pwrite;
+assign penable                      = intf_apb.penable;
+assign psel                         = intf_apb.psel;
+assign paddr                        = intf_apb.paddr;
+assign pwdata                       = intf_apb.pwdata;
 
 endmodule

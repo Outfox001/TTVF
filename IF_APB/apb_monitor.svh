@@ -36,6 +36,8 @@ class apb_monitor extends uvm_monitor ;
       delay 																			= 0;																							//Reset the delay for the next transaction
       if (vif_apb.cb_monitor_apb.pwrite ==1 ) 				begin																								  //First case for transfer data and addr, when it is pwrite high (write)
         data_mon.pwdata 													= vif_apb.cb_monitor_apb.pwdata;
+        
+      `uvm_info (get_type_name(), $sformatf ("The pwdata is receive with value = %b",data_mon.pwdata), UVM_NONE)
         data_mon.paddr  													= vif_apb.cb_monitor_apb.paddr;
       end else if (vif_apb.cb_monitor_apb.pwrite ==0 )begin																								  //Second case for transfer data and addr, when it is pwrite low (read)
         data_mon.prdata 													= vif_apb.cb_monitor_apb.prdata;

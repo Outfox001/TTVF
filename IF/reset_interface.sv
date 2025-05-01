@@ -10,5 +10,7 @@ interface reset_interface(
   );
 
   import uvm_pkg::*;
+  
   bit reset_n;
+  bit state;
 endinterface

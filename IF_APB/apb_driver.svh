@@ -16,14 +16,20 @@ class apb_driver extends uvm_driver #(apb_item, apb_item);
   endfunction
 
   virtual task run_phase(uvm_phase phase);
+  `uvm_info (get_type_name(), $sformatf ("APB DRIVER START"), UVM_NONE)
     zero();
+  `uvm_info (get_type_name(), $sformatf ("APB DRIVER START all in 0"), UVM_NONE)
     @(vif_apb.cb_master_apb);
+  `uvm_info (get_type_name(), $sformatf ("APB DRIVER START after wait"), UVM_NONE)
+    @(negedge vif_apb.reset_n);
+  `uvm_info (get_type_name(), $sformatf ("APB DRIVER START after reset"), UVM_NONE)
     @(posedge vif_apb.reset_n);
-
+      `uvm_info (get_type_name(), $sformatf ("APB DRIVER START after reset 1"), UVM_NONE)
 	  forever begin    
     	seq_item_port.get_next_item(req);
       $cast (data_project, req.clone());
       data_project.set_id_info(req);
+      `uvm_info (get_type_name(), $sformatf ("APB DRIVER START start seq"), UVM_NONE)
     	repeat(data_project.delay_psel) @(vif_apb.cb_master_apb);   
     	case (data_project.pwrite)
         1'b0:read(data_project);

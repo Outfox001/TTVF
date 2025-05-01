@@ -20,9 +20,10 @@ class environment extends uvm_env;
   virtual function void build_phase(uvm_phase phase);
     super.build_phase (phase);
     agent_apb           =           apb_agent::type_id::create("agent_apb", this);       
-    agent_output        =           output_agent::type_id::create("agent_output", this);
     agent_reset         =           reset_agent::type_id::create("agent_reset", this);
     scoreboard_test     =           scoreboard::type_id::create("scoreboard_test", this);
+    uvm_config_db #(uvm_active_passive_enum)::set(this, "agent_output", "is_active", UVM_PASSIVE);
+    agent_output        =           output_agent::type_id::create("agent_output", this);
   endfunction
 
   virtual function void connect_phase (uvm_phase phase);

@@ -27,6 +27,7 @@ class reset_driver extends uvm_driver #(reset_item);
     	seq_item_port.get_next_item(data_project_reset);
     	$display("%s" , data_project_reset.sprint());
       vif_reset.reset_n <= data_project_reset.reset_n;
+      vif_reset.state   <= data_project_reset.state;
   	  seq_item_port.item_done();
       `uvm_info (get_type_name(), $sformatf ("Data was received in APB_DRIVER"), UVM_NONE)
   	end

@@ -26,9 +26,11 @@ class output_monitor extends uvm_monitor ;
 
   task run_phase(uvm_phase phase);
     output_item data_mon_passive = output_item::type_id::create ("data_mon_passive", this);
+    @(negedge vif_output.reset_n);
     @(posedge vif_output.reset_n);
     forever begin
-      @(posedge vif_output.cb_master_output);
+      @(vif_output.cb_master_output iff vif_output.cb_master_output.psel && vif_output.cb_master_output.penable && vif_output.cb_master_output.pready && vif_output.cb_master_output.pwrite);
+        `uvm_info (get_type_name(), $sformatf ("Write Result= %d", vif_output.cb_master_output.result), UVM_NONE)
       data_mon_passive.result  = vif_output.cb_master_output.result;
       mon_analysis_port_output.write(data_mon_passive);
     end

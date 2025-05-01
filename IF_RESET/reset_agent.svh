@@ -17,7 +17,7 @@ class reset_agent extends uvm_agent;
   reset_sequencer       seq_reset;
 
   virtual function void build_phase(uvm_phase phase);
-    if(get_is_active())
+   if(get_is_active())
     begin
       seq_reset = reset_sequencer::type_id::create ("seq_reset", this);
       drv_reset = reset_driver::type_id::create ("drv_reset", this);
@@ -26,7 +26,7 @@ class reset_agent extends uvm_agent;
   endfunction
 
   virtual function void connect_phase (uvm_phase phase);
-  if(get_is_active())
+   if(get_is_active())
   drv_reset.seq_item_port.connect (seq_reset.seq_item_export);
   endfunction
 

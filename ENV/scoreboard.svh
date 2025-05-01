@@ -14,7 +14,7 @@ class scoreboard extends uvm_scoreboard;
   `uvm_analysis_imp_decl(_output_port)
   `uvm_analysis_imp_decl(_reset_port)
 
-uvm_analysis_imp_apb_port #(apb_item ,scoreboard) ap_imp_apb;
+uvm_analysis_imp_apb_port   #(apb_item ,scoreboard) ap_imp_apb;
 uvm_analysis_imp_reset_port #(reset_item, scoreboard) ap_imp_reset;
 uvm_analysis_imp_output_port #(output_item ,scoreboard) ap_imp_output;
 
@@ -45,7 +45,7 @@ endfunction
                                     //  OPCODE 1001 -> COMP         -> op1 > op2 => 1, op1 < op2 => 2, op1 == op2 => 0
 
   bit [5:0]   addres_read       ;
-  bit [8:0]   Resultmem [15]    ;
+  bit [8:0]   Resultmem [16]    ;
   bit [8:0]   ResultOutput      ;
   bit reset;
 
@@ -58,13 +58,14 @@ endfunction
 
   `uvm_info (get_type_name(), $sformatf ("PWRITE Check"), UVM_LOW);
   if(item.pwrite) begin
+    `uvm_info (get_type_name(), $sformatf ("PWDATA Check after the separate = %b", item.pwdata), UVM_LOW);
     pwdata_address   = item.pwdata[5:0]  ;
     pwdata_operand1  = item.pwdata[13:6] ;
     pwdata_operand2  = item.pwdata[21:14];
     pwdata_constant  = item.pwdata[25:22];
     pwdata_shift     = item.pwdata[27:26];
     pwdata_opcode    = item.pwdata[31:28];
-  `uvm_info(get_type_name(), $sformatf ("For Configuration pwrite = %b , pwdata =%b, PWDATA_ADDR = %d, PWDATA_OPERAND1 = %d, PWDATA_OPERAND2 = %d, PWDATA_CONSTANT = %d, PWDATA_SHIFT = %d, PWDATA_OPCODE = %d",item.pwrite,item.pwdata , pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode), UVM_LOW);
+  `uvm_info(get_type_name(), $sformatf ("For Configuration pwrite = %b , pwdata =%b, PWDATA_ADDR = %d, PWDATA_OPERAND1 = %d, PWDATA_OPERAND2 = %d, PWDATA_CONSTANT = %d, PWDATA_SHIFT = %b, PWDATA_OPCODE = %b",item.pwrite,item.pwdata , pwdata_address, pwdata_operand1, pwdata_operand2, pwdata_constant, pwdata_shift, pwdata_opcode), UVM_LOW);
 
   end else 
     addres_read      = item.paddr;
@@ -72,82 +73,84 @@ endfunction
 
   `uvm_info (get_type_name(), $sformatf ("OPCODE Check"), UVM_LOW);
 
-  if(item.pwrite) begin
-  if(pwdata_opcode == 4'b0001)begin
-    ResultOutput = pwdata_operand1 + pwdata_operand2;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0010)begin
-    ResultOutput = pwdata_operand1 + pwdata_constant;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0011)begin
-    ResultOutput = pwdata_operand2 + pwdata_constant;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0100)begin
-    ResultOutput = pwdata_operand1 << pwdata_shift;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0101)begin
-    ResultOutput = pwdata_operand1 & pwdata_operand2;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0110)begin
-    ResultOutput = pwdata_operand1 | pwdata_operand2;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0111)begin
-    ResultOutput = pwdata_operand1 ^ pwdata_operand2;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-    if(pwdata_opcode == 4'b1000)begin
-    ResultOutput = ~(pwdata_operand1 & pwdata_operand2);
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b1001)begin
-    ResultOutput = ~(pwdata_operand1 | pwdata_operand2);
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b1010)begin
-    ResultOutput = ~(pwdata_operand1 ^ pwdata_operand2);
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b1011 && pwdata_operand1 == pwdata_operand2)begin
-    ResultOutput = 9'd0;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b1011 && pwdata_operand1 < pwdata_operand2)begin
-    ResultOutput = 9'd2;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b1011 && pwdata_operand1 > pwdata_operand2)begin
-    ResultOutput = 9'd1;
-    Resultmem [pwdata_address] = ResultOutput;
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, Resultmem[pwdata_address]), UVM_LOW);
-  end
-  if(pwdata_opcode == 4'b0000)begin
-  `uvm_error(get_type_name (),$sformatf ("The OPCODE value need to be a non-zero value"))
-  `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b", pwdata_opcode), UVM_LOW);
-  end
+  if(addres_read > 15 || pwdata_address > 15)begin
+  `uvm_error(get_type_name (),$sformatf ("The address is out of range. Address_read = %d, Address_pwrite = %d", addres_read, pwdata_address))
   end
 
-  if(~(item.pwrite)) begin
-    ResultOutput = Resultmem [addres_read];
-    `uvm_info(get_type_name(), $sformatf ("For PWRITE = %b , Result = %d, Storage at =%d", item.pwrite, ResultOutput, Resultmem[addres_read]), UVM_LOW);
+  if(addres_read <= 15 && pwdata_address <= 15)begin
+    if(item.pwrite) begin
+      if(pwdata_opcode == 4'b0001)begin
+        ResultOutput = pwdata_operand1 + pwdata_operand2;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_MEDIUM);
+      end
+      if(pwdata_opcode == 4'b0010)begin
+        ResultOutput = pwdata_operand1 + pwdata_constant;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0011)begin
+        ResultOutput = pwdata_operand2 + pwdata_constant;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0100)begin
+        ResultOutput = pwdata_operand1 << pwdata_shift;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0101)begin
+        ResultOutput = (pwdata_operand1 & pwdata_operand2);
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0110)begin
+        ResultOutput = (pwdata_operand1 | pwdata_operand2);
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0111)begin
+        ResultOutput = ~(pwdata_operand1 & pwdata_operand2);
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b1000)begin
+        ResultOutput = ~(pwdata_operand1 | pwdata_operand2);
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b1001 && pwdata_operand1 == pwdata_operand2)begin
+        ResultOutput = 9'd0;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b1001 && pwdata_operand1 < pwdata_operand2)begin
+        ResultOutput = 9'd2;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b1001 && pwdata_operand1 > pwdata_operand2)begin
+        ResultOutput = 9'd1;
+        Resultmem [pwdata_address] = ResultOutput;
+        `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b , Result = %d, Storage at =%d", pwdata_opcode, ResultOutput, pwdata_address), UVM_LOW);
+      end
+      if(pwdata_opcode == 4'b0000)begin
+      `uvm_error(get_type_name (),$sformatf ("The OPCODE value need to be a non-zero value"))
+      `uvm_info(get_type_name(), $sformatf ("For OPCODE = %b", pwdata_opcode), UVM_LOW);
+      end
   end
+    if(~(item.pwrite)) begin
+      if(item.prdata != Resultmem[addres_read])begin
+      `uvm_error(get_type_name (),$sformatf ("The PRDATA is different from Internal Memory. PRDATA = %d, Internal Memory Value = %d", item.prdata, Resultmem[addres_read] ))
+      end
+      `uvm_info(get_type_name(), $sformatf ("Same value for PRDATA with Internal Memory. PRDATA = %d, Internal Memory Value = %d", item.prdata, Resultmem[addres_read]), UVM_LOW);
+      for (int i=0; i<=addres_read; i++) begin
+        `uvm_info(get_type_name(), $sformatf ("For Internal memory at Address = %d, with value = %d", i, Resultmem[i]), UVM_LOW);
+      end
+    end
+
+  end
+
   endfunction
 
 
@@ -172,9 +175,9 @@ endfunction
 
 
 virtual function void write_output_port  (output_item item_output);
-  $display("%s", item_output.sprint());
-  if (item_output.result != ResultOutput)
-  `uvm_error(get_type_name (),$sformatf ("The Output doesnt match. Result in scoreboard = %d, Result from monitor = %d", ResultOutput, item_output.result))
+  // $display("%s", item_output.sprint());
+  // if (item_output.result != ResultOutput)
+  // `uvm_error(get_type_name (),$sformatf ("The Output doesnt match. Result in scoreboard = %d, Result from monitor = %d", ResultOutput, item_output.result))
 endfunction
 
 

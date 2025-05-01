@@ -10,7 +10,7 @@ class apb_agent extends uvm_agent;
   apb_sequencer         seq_apb;
 
   virtual function void build_phase(uvm_phase phase);
-    if(get_is_active())
+   if(get_is_active())
       begin
         seq_apb = apb_sequencer::type_id::create ("seq_apb", this);
         drv_apb = apb_driver::type_id::create ("drv_apb", this);
@@ -19,7 +19,7 @@ class apb_agent extends uvm_agent;
   endfunction
 
   virtual function void connect_phase (uvm_phase phase);
-    if(get_is_active())
+   if(get_is_active())
       drv_apb.seq_item_port.connect (seq_apb.seq_item_export);
   endfunction
 
