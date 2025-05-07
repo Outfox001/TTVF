@@ -11,35 +11,35 @@ class output_coverage extends uvm_subscriber #(output_item);  // taken from moni
 
   function new(string name="output_coverage",uvm_component parent);
     super.new(name,parent);
-    dut_cov_intr =new();
+    cov_result =new();
   endfunction
   
-  output_item cov_proj_item_intr     ;
-  real  cov_result upt           ;
+  output_item item_result     ;
+  real result_cov           ;
   
   // ________________ COVERGROUP FOR PSLVERR ______________________
-  covergroup dut_cov_intr;
-  result UPT: coverpoint cov_proj_item_intr.result  {
-    bins interval2 = {1};
+  covergroup cov_result;
+  RESULT: coverpoint item_result.result  {
+    bins interval[10] = {['d0 : $]};
   }
   endgroup
 
   function void write(output_item t);
-    cov_proj_item_intr = t;
-    dut_cov_intr.sample();
+    item_result = t;
+    cov_result.sample();
   endfunction
 
   // ________________ Extract Phase ______________________
 
   function void extract_phase(uvm_phase phase);
     super.extract_phase(phase);
-    cov_result upt=dut_cov_intr.get_coverage();
+    result_cov=cov_result.get_coverage();
   endfunction
 
 
   function void report_phase(uvm_phase phase);
     super.report_phase(phase);
-    `uvm_info(get_type_name(),$sformatf("Coverage for result UPT is %f",cov_result upt),UVM_MEDIUM)
+    `uvm_info(get_type_name(),$sformatf("Output Interface : Coverage for result is %f",result_cov),UVM_MEDIUM)
   endfunction 
 
 endclass : output_coverage

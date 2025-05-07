@@ -14,6 +14,10 @@ class  apb_item extends uvm_sequence_item;
     `uvm_field_int (prdata ,         UVM_DEFAULT)
   `uvm_object_utils_end
                     
+    constraint addr_max_c {pwdata[5:0]  < 16; }
+    constraint opcode_min_c {pwdata[31:28]  > 0;  }
+    constraint opcode_max_c {pwdata[31:28]  < 10;  }
+
   function new (string name = "apb_item");
     super.new(name);
   endfunction

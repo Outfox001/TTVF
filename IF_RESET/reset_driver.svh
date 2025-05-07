@@ -29,7 +29,7 @@ class reset_driver extends uvm_driver #(reset_item);
       vif_reset.reset_n <= data_project_reset.reset_n;
       vif_reset.state   <= data_project_reset.state;
   	  seq_item_port.item_done();
-      `uvm_info (get_type_name(), $sformatf ("Data was received in APB_DRIVER"), UVM_NONE)
+      `uvm_info (get_type_name(), $sformatf ("Reset complet."), UVM_NONE)
   	end
   endtask
 endclass //req_ack_driver extends uvm_driver

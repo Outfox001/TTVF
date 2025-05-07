@@ -21,6 +21,7 @@ class apb_driver extends uvm_driver #(apb_item, apb_item);
   `uvm_info (get_type_name(), $sformatf ("APB DRIVER START all in 0"), UVM_NONE)
     @(vif_apb.cb_master_apb);
   `uvm_info (get_type_name(), $sformatf ("APB DRIVER START after wait"), UVM_NONE)
+    @(posedge vif_apb.state);
     @(negedge vif_apb.reset_n);
   `uvm_info (get_type_name(), $sformatf ("APB DRIVER START after reset"), UVM_NONE)
     @(posedge vif_apb.reset_n);

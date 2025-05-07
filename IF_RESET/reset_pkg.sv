@@ -16,5 +16,6 @@ package reset_pkg;
   `include "reset_sequencer.svh"
   `include "reset_agent.svh"
   `include "reset_sequence.svh"
+  `include "reset_coverage.svh"
     
 endpackage

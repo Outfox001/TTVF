@@ -462,3 +462,29 @@ class opcode1001_write_read extends apb_sequence;
         get_response(item);
   endtask : body
 endclass : opcode1001_write_read
+
+class random_seq extends apb_sequence;
+
+  `uvm_object_utils(random_seq)
+
+ 
+  function new (string name="random_seq");
+      super.new(name);    
+  endfunction
+  virtual task body();
+
+      for(int i = 0; i<100 ;i++) begin
+           start_item (item);
+           if(!(item.randomize() with {
+                                        paddr inside {[16'b0 :  16'd15]} ;
+                                        delay_psel inside {[0:14]} ;
+                                        pwrite inside {[0:1]} ;
+                                       }))
+
+            `uvm_error(get_type_name(), "rand_error")
+           finish_item (item);
+           get_response(item);
+        end
+
+  endtask : body
+endclass : random_seq

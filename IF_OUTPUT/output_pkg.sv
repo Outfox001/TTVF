@@ -13,6 +13,6 @@ package output_pkg;
   `include "output_item.svh"
   `include "output_monitor.svh"
   `include "output_agent.svh"
-  // `include "output_coverage.svh"
+  `include "output_coverage.svh"
 
 endpackage

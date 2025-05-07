@@ -30,7 +30,7 @@ class apb_monitor extends uvm_monitor ;
     join_none
 
 	  forever begin
-	  	@(vif_apb.cb_monitor_apb iff vif_apb.cb_monitor_apb.psel && vif_apb.cb_monitor_apb.penable && vif_apb.cb_monitor_apb.pready);	//Wait for the complete transaction
+	  	@(vif_apb.cb_monitor_apb iff vif_apb.cb_monitor_apb.psel && vif_apb.cb_monitor_apb.penable && vif_apb.cb_monitor_apb.pready );	//Wait for the complete transaction
       data_mon.pwrite 														= vif_apb.cb_monitor_apb.pwrite;													//
       data_mon.delay_psel 												= delay;																					//Transfer the data for delay, to the monitor
       delay 																			= 0;																							//Reset the delay for the next transaction

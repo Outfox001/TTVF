@@ -19,9 +19,17 @@ class reset_sequence extends uvm_sequence;
 virtual task body();
     begin 
     test1 = reset_item::type_id::create("test1");
+
+    start_item(test1);
+      test1.state =0;
+    finish_item(test1);
+    #50
+    start_item(test1);
+      test1.state =1;
+    finish_item(test1);
+    #50
     start_item(test1);
       test1.reset_n =1;
-      test1.state = 0;
     finish_item(test1);
     #50
     start_item(test1);
@@ -30,7 +38,6 @@ virtual task body();
     #50
     start_item(test1);
       test1.reset_n =1;
-      test1.state = 1;
     finish_item(test1);
     end
   endtask

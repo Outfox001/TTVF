@@ -9,6 +9,6 @@ package apb_pkg;
   `include "apb_sequencer.svh"
   `include "apb_agent.svh"
   `include "apb_sequence.svh"
-  // `include "apb_coverage.svh"
+  `include "apb_coverage.svh"
     
 endpackage

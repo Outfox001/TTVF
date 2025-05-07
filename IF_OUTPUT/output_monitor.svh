@@ -26,6 +26,7 @@ class output_monitor extends uvm_monitor ;
 
   task run_phase(uvm_phase phase);
     output_item data_mon_passive = output_item::type_id::create ("data_mon_passive", this);
+    @(posedge vif_output.state);
     @(negedge vif_output.reset_n);
     @(posedge vif_output.reset_n);
     forever begin

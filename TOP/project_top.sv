@@ -32,10 +32,12 @@ reg [0:8] result;
 reg state;
 
   apb_interface intf_apb        ( .clk(clk),
-                                  .reset_n(reset_n));
+                                  .reset_n(reset_n),
+                                  .state(state));
 
   output_interface intf_output  ( .clk(clk),
-                                  .reset_n(reset_n));
+                                  .reset_n(reset_n),
+                                  .state(state));
   reset_interface intf_reset    (.clk(clk));
 
 
@@ -72,7 +74,10 @@ initial begin
 // run_test("test_write_all_read_all");
 // run_test("test_write_all_read_all_error");
 // run_test("test_opcode_error_check_with_0000");
-run_test("test_opcode_check_full");
+// run_test("test_opcode_check_full");
+// run_test("test_opcode_check_full_half_reset");
+// run_test("test_full_random");
+run_test("test_full_random_with_reset");
 
 
 
